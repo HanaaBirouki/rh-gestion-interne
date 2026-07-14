@@ -21,16 +21,18 @@ const navItems = [
 
 export default function AdminLayout() {
   return (
-    <div className="flex h-screen bg-gray-50">
-      <aside className="w-64 bg-[oklch(0.22_0.06_250)] flex flex-col text-white shrink-0">
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-1 bg-[oklch(0.75_0.11_210)] rounded-full" />
-            <h2 className="text-xl font-bold tracking-wide">WAMA</h2>
+    <div className="flex h-screen bg-background">
+      <aside className="w-64 bg-sidebar flex flex-col text-sidebar-foreground shrink-0">
+        <div className="p-6 border-b border-sidebar-border">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-sidebar-primary rounded-xl flex items-center justify-center shrink-0 -rotate-3">
+              <span className="text-sidebar-primary-foreground font-bold text-sm">W</span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold tracking-tight leading-none">WAMA INVEST</h2>
+              <p className="text-xs text-sidebar-foreground/60 mt-1">Gestion RH</p>
+            </div>
           </div>
-          <p className="text-xs text-white/50 mt-1 tracking-wider uppercase">
-            Gestion RH Interne
-          </p>
         </div>
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map(({ to, label, icon: Icon, end }) => (
@@ -39,10 +41,10 @@ export default function AdminLayout() {
               to={to}
               end={end}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-[oklch(0.75_0.11_210)] text-[oklch(0.2_0.04_250)]"
-                    : "text-white/70 hover:bg-white/10 hover:text-white"
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                 }`
               }
             >
@@ -51,8 +53,8 @@ export default function AdminLayout() {
             </NavLink>
           ))}
         </nav>
-        <div className="p-4 border-t border-white/10">
-          <p className="text-xs text-white/40">WAMA INVEST © 2026</p>
+        <div className="p-4 border-t border-sidebar-border">
+          <p className="text-xs text-sidebar-foreground/40">© 2026 WAMA INVEST Group</p>
         </div>
       </aside>
 
