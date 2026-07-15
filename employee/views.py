@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+
 from .models import (
     EmployeeProfile,
     LeaveRequest,
@@ -6,6 +7,7 @@ from .models import (
     Payslip,
     DocumentRequest,
 )
+
 from .serializers import (
     EmployeeProfileSerializer,
     LeaveRequestSerializer,
@@ -21,20 +23,20 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
 
 
 class LeaveRequestViewSet(viewsets.ModelViewSet):
-    queryset = LeaveRequest.objects.all()
+    queryset = LeaveRequest.objects.all().order_by("-created_at")
     serializer_class = LeaveRequestSerializer
 
 
 class EmployeeDocumentViewSet(viewsets.ModelViewSet):
-    queryset = EmployeeDocument.objects.all()
+    queryset = EmployeeDocument.objects.all().order_by("-date_ajout")
     serializer_class = EmployeeDocumentSerializer
 
 
 class PayslipViewSet(viewsets.ModelViewSet):
-    queryset = Payslip.objects.all()
+    queryset = Payslip.objects.all().order_by("-annee", "-id")
     serializer_class = PayslipSerializer
 
 
 class DocumentRequestViewSet(viewsets.ModelViewSet):
-    queryset = DocumentRequest.objects.all()
+    queryset = DocumentRequest.objects.all().order_by("-date_demande")
     serializer_class = DocumentRequestSerializer

@@ -1,12 +1,51 @@
+import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import { FileCheck, Download } from "lucide-react";
 
 export default function RequestsPage() {
-  const requests = [
-    { document: "Attestation de travail", date: "10/07/2026", status: "En attente" },
-    { document: "Attestation de salaire", date: "05/07/2026", status: "Prêt" },
-    { document: "Certificat de travail", date: "01/07/2026", status: "Refusé" },
-  ];
+  const [document, setDocument] = useState("Attestation de travail");
+  const [date, setDate] = useState("");
+
+  const [requests, setRequests] = useState([
+    {
+      document: "Attestation de travail",
+      date: "10/07/2026",
+      status: "En attente",
+      file: "/documents/attestation.pdf",
+    },
+    {
+      document: "Attestation de salaire",
+      date: "05/07/2026",
+      status: "Prêt",
+      file: "/documents/attestation.pdf",
+    },
+    {
+      document: "Certificat de travail",
+      date: "01/07/2026",
+      status: "Refusé",
+      file: "/documents/attestation.pdf",
+    },
+  ]);
+
+  const sendRequest = () => {
+    if (date === "") {
+      alert("Choisissez une date");
+      return;
+    }
+
+    setRequests([
+      {
+        document,
+        date,
+        status: "En attente",
+        file: "/documents/attestation.pdf",
+      },
+      ...requests,
+    ]);
+
+    alert("Demande envoyée avec succès");
+    setDate("");
+  };
 
   const getStatusStyle = (status: string) => {
     if (status === "Prêt") return "bg-green-100 text-green-700";
@@ -33,16 +72,28 @@ export default function RequestsPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <select className="border rounded-xl p-3">
+            <select
+              value={document}
+              onChange={(e) => setDocument(e.target.value)}
+              className="border rounded-xl p-3"
+            >
               <option>Attestation de travail</option>
               <option>Attestation de salaire</option>
               <option>Certificat de travail</option>
             </select>
 
-            <input type="date" className="border rounded-xl p-3" />
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="border rounded-xl p-3"
+            />
           </div>
 
-          <button className="mt-6 bg-[#8B5E3C] text-white px-6 py-3 rounded-xl hover:bg-[#6E472C]">
+          <button
+            onClick={sendRequest}
+            className="mt-6 bg-[#8B5E3C] text-white px-6 py-3 rounded-xl hover:bg-[#6E472C]"
+          >
             Envoyer la demande
           </button>
         </div>
@@ -60,10 +111,12 @@ export default function RequestsPage() {
               >
                 <div className="flex items-center gap-4">
                   <FileCheck className="text-[#8B5E3C]" />
+
                   <div>
                     <h3 className="font-semibold text-[#3B3024]">
                       {request.document}
                     </h3>
+
                     <p className="text-sm text-gray-500">
                       Demandé le : {request.date}
                     </p>
@@ -71,15 +124,25 @@ export default function RequestsPage() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <span className={`px-3 py-1 rounded-full text-sm ${getStatusStyle(request.status)}`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm ${getStatusStyle(
+                      request.status
+                    )}`}
+                  >
                     {request.status}
                   </span>
 
                   {request.status === "Prêt" && (
-                    <button className="flex items-center gap-2 bg-[#8B5E3C] text-white px-4 py-2 rounded-xl hover:bg-[#6E472C]">
+                    <a
+                      href={request.file}
+                      download
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-2 bg-[#8B5E3C] text-white px-4 py-2 rounded-xl hover:bg-[#6E472C]"
+                    >
                       <Download size={18} />
                       Télécharger
-                    </button>
+                    </a>
                   )}
                 </div>
               </div>

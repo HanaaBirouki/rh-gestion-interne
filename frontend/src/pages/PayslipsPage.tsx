@@ -3,12 +3,42 @@ import { FileText, Download } from "lucide-react";
 
 export default function PayslipsPage() {
   const payslips = [
-    { month: "Janvier", year: "2026", date: "31/01/2026" },
-    { month: "Février", year: "2026", date: "28/02/2026" },
-    { month: "Mars", year: "2026", date: "31/03/2026" },
-    { month: "Avril", year: "2026", date: "30/04/2026" },
-    { month: "Mai", year: "2026", date: "31/05/2026" },
-    { month: "Juin", year: "2026", date: "30/06/2026" },
+    {
+      month: "Janvier",
+      year: "2026",
+      date: "31/01/2026",
+      file: "/documents/bulletin-janvier.pdf",
+    },
+    {
+      month: "Février",
+      year: "2026",
+      date: "28/02/2026",
+      file: "/documents/bulletin-fevrier.pdf",
+    },
+    {
+      month: "Mars",
+      year: "2026",
+      date: "31/03/2026",
+      file: "/documents/bulletin-janvier.pdf",
+    },
+    {
+      month: "Avril",
+      year: "2026",
+      date: "30/04/2026",
+      file: "/documents/bulletin-fevrier.pdf",
+    },
+    {
+      month: "Mai",
+      year: "2026",
+      date: "31/05/2026",
+      file: "/documents/bulletin-janvier.pdf",
+    },
+    {
+      month: "Juin",
+      year: "2026",
+      date: "30/06/2026",
+      file: "/documents/bulletin-fevrier.pdf",
+    },
   ];
 
   return (
@@ -57,10 +87,16 @@ export default function PayslipsPage() {
                   </div>
                 </div>
 
-                <button className="flex items-center gap-2 bg-[#8B5E3C] text-white px-4 py-2 rounded-xl hover:bg-[#6E472C]">
+                <a
+                  href={item.file}
+                  download
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 bg-[#8B5E3C] text-white px-4 py-2 rounded-xl hover:bg-[#6E472C]"
+                >
                   <Download size={18} />
                   Télécharger PDF
-                </button>
+                </a>
               </div>
             ))}
           </div>

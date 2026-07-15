@@ -1,40 +1,55 @@
-import { Bell, Search, UserCircle } from "lucide-react";
+import { Bell, HelpCircle, Search } from "lucide-react";
 
 export default function Header() {
   return (
-    <div className="flex justify-between items-center mb-10">
-      <div>
-        <h1 className="text-4xl font-bold text-[#3B3024]">
-          Dashboard Employé
-        </h1>
+    <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-slate-200 bg-white px-6 lg:px-8">
+      <div className="relative w-full max-w-xl">
+        <Search
+          size={18}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+        />
 
-        <p className="text-gray-500 mt-2">
-          Bienvenue dans votre espace personnel RH.
-        </p>
+        <input
+          type="text"
+          placeholder="Rechercher dans WAMA RH..."
+          className="h-11 w-full rounded-xl border border-slate-200 bg-[#F7F9FD] pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-[#2F67F6] focus:bg-white focus:ring-4 focus:ring-[#2F67F6]/10"
+        />
       </div>
 
-      <div className="flex items-center gap-6">
-        <Search className="text-[#8B5E3C]" />
+      <div className="ml-6 flex items-center gap-4">
+        <button
+          type="button"
+          className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-[#F1F5FF] hover:text-[#1742A0]"
+        >
+          <Bell size={19} />
+          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
+        </button>
 
-        <Bell className="text-[#8B5E3C]" />
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-[#F1F5FF] hover:text-[#1742A0]"
+        >
+          <HelpCircle size={19} />
+        </button>
+
+        <div className="h-8 w-px bg-slate-200" />
 
         <div className="flex items-center gap-3">
-          <UserCircle
-            size={45}
-            className="text-[#8B5E3C]"
-          />
-
-          <div>
-            <h3 className="font-semibold">
+          <div className="text-right">
+            <p className="text-sm font-semibold text-[#0F2557]">
               Marwa Boubekri
-            </h3>
+            </p>
 
-            <p className="text-sm text-gray-500">
+            <p className="text-xs text-slate-500">
               Employée
             </p>
           </div>
+
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#DDE7FF] text-sm font-bold text-[#1742A0]">
+            MB
+          </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 }

@@ -2,12 +2,29 @@ import Sidebar from "../components/Sidebar";
 import { FileText, Download } from "lucide-react";
 
 export default function DocumentsPage() {
-  const documents = [
-    { name: "Contrat de travail", date: "01/01/2026" },
-    { name: "Attestation de travail", date: "15/03/2026" },
-    { name: "Règlement intérieur", date: "10/02/2026" },
-    { name: "Carte CNSS", date: "20/01/2026" },
-  ];
+ 
+ const documents = [
+  {
+    name: "Contrat de travail",
+    date: "01/01/2026",
+    file: "/documents/contrat.pdf",
+  },
+  {
+    name: "Attestation de travail",
+    date: "15/03/2026",
+    file: "/documents/attestation.pdf",
+  },
+  {
+    name: "Bulletin Janvier",
+    date: "31/01/2026",
+    file: "/documents/bulletin-janvier.pdf",
+  },
+  {
+    name: "Bulletin Février",
+    date: "28/02/2026",
+    file: "/documents/bulletin-fevrier.pdf",
+  },
+];
 
   return (
     <div className="flex min-h-screen bg-[#F8F5F0]">
@@ -41,10 +58,16 @@ export default function DocumentsPage() {
                   </div>
                 </div>
 
-                <button className="flex items-center gap-2 bg-[#8B5E3C] text-white px-4 py-2 rounded-xl hover:bg-[#6E472C]">
-                  <Download size={18} />
-                  Télécharger
-                </button>
+               <a
+  href={doc.file}
+  download
+  target="_blank"
+  rel="noreferrer"
+  className="flex items-center gap-2 bg-[#8B5E3C] text-white px-4 py-2 rounded-xl hover:bg-[#6E472C]"
+>
+  <Download size={18} />
+  Télécharger
+</a>
               </div>
             ))}
           </div>

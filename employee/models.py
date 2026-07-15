@@ -1,9 +1,10 @@
 from django.db import models
-from django.conf import settings
 
 
 class EmployeeProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    nom = models.CharField(max_length=100)
+    prenom = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
     matricule = models.CharField(max_length=50, unique=True)
     poste = models.CharField(max_length=100)
     departement = models.CharField(max_length=100)
@@ -12,7 +13,7 @@ class EmployeeProfile(models.Model):
     photo = models.ImageField(upload_to="employees/photos/", blank=True, null=True)
 
     def __str__(self):
-        return self.user.email
+        return f"{self.prenom} {self.nom}"
 
 
 class LeaveRequest(models.Model):
@@ -66,7 +67,11 @@ class DocumentRequest(models.Model):
     type_document = models.CharField(max_length=100)
     date_demande = models.DateField(auto_now_add=True)
     statut = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
-    fichier = models.FileField(upload_to="employees/requested_documents/", blank=True, null=True)
+    fichier = models.FileField(
+        upload_to="employees/requested_documents/",
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
-        return self.type_document
+        return self.type_document  
