@@ -1,8 +1,24 @@
-import Sidebar from "../components/Sidebar";
-import { FileText, Download } from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  CalendarDays,
+  Download,
+  FileText,
+  ReceiptText,
+} from "lucide-react";
+
+import AppLayout from "../components/AppLayout";
+
+type Payslip = {
+  month: string;
+  year: string;
+  date: string;
+  file: string;
+};
 
 export default function PayslipsPage() {
-  const payslips = [
+  const [selectedYear, setSelectedYear] = useState("2026");
+
+  const payslips: Payslip[] = [
     {
       month: "Janvier",
       year: "2026",
@@ -41,58 +57,109 @@ export default function PayslipsPage() {
     },
   ];
 
+  const availableYears = useMemo(() => {
+    return Array.from(
+      new Set(payslips.map((payslip) => payslip.year))
+    ).sort((a, b) => Number(b) - Number(a));
+  }, [payslips]);
+
+  const filteredPayslips = useMemo(() => {
+    return payslips.filter(
+      (payslip) => payslip.year === selectedYear
+    );
+  }, [payslips, selectedYear]);
+
   return (
-    <div className="flex min-h-screen bg-[#F8F5F0]">
-      <Sidebar />
-
-      <main className="flex-1 p-10">
-        <h1 className="text-4xl font-bold text-[#3B3024]">
-          Bulletins de paie
-        </h1>
-
-        <p className="text-gray-500 mt-2">
-          Consultez et téléchargez vos bulletins mensuels.
-        </p>
-
-        <div className="bg-white rounded-2xl shadow-md p-8 mt-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-[#3B3024]">
+    <AppLayout
+      title="Bulletins de paie"
+      subtitle="Consultez et téléchargez vos bulletins mensuels."
+    >
+      <div className="rounded-3xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,37,87,0.08)]">
+        <div className="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-[#0F2557]">
               Historique des bulletins
             </h2>
 
-            <select className="border rounded-xl p-3">
-              <option>2026</option>
-              <option>2025</option>
-              <option>2024</option>
-            </select>
+            <p className="mt-1 text-sm text-slate-500">
+              Retrouvez vos bulletins de paie par année.
+            </p>
           </div>
 
-          <div className="space-y-4">
-            {payslips.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between border border-[#E8DED2] rounded-xl p-4 hover:shadow-md hover:-translate-y-1 transition"
-              >
-                <div className="flex items-center gap-4">
-                  <FileText className="text-[#8B5E3C]" />
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#EEF4FF] to-[#DDE8FF] px-4 py-2 text-sm font-semibold text-[#1742A0]">
+              <ReceiptText size={18} />
 
-                  <div>
-                    <h3 className="font-semibold text-[#3B3024]">
-                      Bulletin {item.month} {item.year}
+              {filteredPayslips.length} bulletins
+            </div>
+
+            <div className="relative">
+              <CalendarDays
+                size={18}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+
+              <select
+                value={selectedYear}
+                onChange={(event) =>
+                  setSelectedYear(event.target.value)
+                }
+                className="h-11 min-w-[130px] appearance-none rounded-xl border border-slate-200 bg-white pl-10 pr-10 text-sm font-semibold text-[#0F2557] outline-none transition focus:border-[#2F67F6] focus:ring-4 focus:ring-[#2F67F6]/10"
+              >
+                {availableYears.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {filteredPayslips.length === 0 ? (
+          <div className="px-6 py-16 text-center">
+            <ReceiptText
+              size={44}
+              className="mx-auto text-slate-300"
+            />
+
+            <p className="mt-4 font-semibold text-[#0F2557]">
+              Aucun bulletin disponible
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Aucun bulletin n’est disponible pour l’année sélectionnée.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {filteredPayslips.map((payslip) => (
+              <div
+                key={`${payslip.month}-${payslip.year}`}
+                className="flex flex-col gap-4 px-6 py-5 transition-all duration-300 hover:bg-[#F6F9FF] hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex min-w-0 items-center gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#E7EEFF] text-[#1742A0]">
+                    <FileText size={24} />
+                  </div>
+
+                  <div className="min-w-0">
+                    <h3 className="truncate font-semibold text-[#0F2557]">
+                      Bulletin {payslip.month} {payslip.year}
                     </h3>
 
-                    <p className="text-sm text-gray-500">
-                      Date : {item.date}
+                    <p className="mt-1 text-sm text-slate-500">
+                      Disponible depuis le {payslip.date}
                     </p>
                   </div>
                 </div>
 
                 <a
-                  href={item.file}
+                  href={payslip.file}
                   download
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 bg-[#8B5E3C] text-white px-4 py-2 rounded-xl hover:bg-[#6E472C]"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#1742A0] to-[#2457D6] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 >
                   <Download size={18} />
                   Télécharger PDF
@@ -100,8 +167,8 @@ export default function PayslipsPage() {
               </div>
             ))}
           </div>
-        </div>
-      </main>
-    </div>
+        )}
+      </div>
+    </AppLayout>
   );
 }
