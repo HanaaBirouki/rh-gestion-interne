@@ -165,9 +165,34 @@ class DocumentUploadView(generics.CreateAPIView):
             user = get_object_or_404(User, id=user_id)
             serializer.save(user=user)
         else:
-            serializer.save(user=self.request.user)
+            user = self.request.user
+            serializer.save(user=user)
         
-        logger.info(f"✅ Document uploadé: {serializer.instance.name}")
+        doc = serializer.instance
+        logger.info(f"✅ Document uploadé: {doc.name}")
+        
+        # Envoyer une notification par email à l'employé
+        try:
+            send_mail(
+                subject='📄 Nouveau document disponible - WAMA INVEST',
+                message=f"""Bonjour {doc.user.get_full_name()},
+
+Un nouveau document vous a été assigné dans l'application WAMA INVEST.
+
+📂 Nom du document : {doc.name}
+🗂️ Type : {doc.get_type_display() if hasattr(doc, 'get_type_display') else doc.type}
+
+Vous pouvez le consulter en vous connectant à votre espace personnel.
+
+Cordialement,
+L'équipe WAMA INVEST""",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[doc.user.email],
+                fail_silently=False,
+            )
+            logger.info(f"✅ Email de notification document envoyé à {doc.user.email}")
+        except Exception as e:
+            logger.error(f"❌ Erreur d'envoi d'email document à {doc.user.email}: {str(e)}")
 
 
 class DocumentListView(generics.ListAPIView):
@@ -212,9 +237,39 @@ class PayslipUploadView(generics.CreateAPIView):
             user = get_object_or_404(User, id=user_id)
             serializer.save(user=user)
         else:
-            serializer.save(user=self.request.user)
+            user = self.request.user
+            serializer.save(user=user)
         
-        logger.info(f"✅ Bulletin de paie uploadé: {serializer.instance.month}/{serializer.instance.year}")
+        payslip = serializer.instance
+        logger.info(f"✅ Bulletin de paie uploadé: {payslip.month}/{payslip.year}")
+        
+        # Envoyer une notification par email à l'employé
+        try:
+            MONTHS_FR = {
+                1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
+                5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
+                9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
+            }
+            month_name = MONTHS_FR.get(payslip.month, str(payslip.month))
+            send_mail(
+                subject=f'💰 Bulletin de paie {month_name} {payslip.year} disponible - WAMA INVEST',
+                message=f"""Bonjour {payslip.user.get_full_name()},
+
+Votre bulletin de paie est maintenant disponible dans votre espace personnel.
+
+📅 Période : {month_name} {payslip.year}
+
+Connectez-vous à l'application WAMA INVEST pour le consulter et le télécharger.
+
+Cordialement,
+L'équipe WAMA INVEST""",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[payslip.user.email],
+                fail_silently=False,
+            )
+            logger.info(f"✅ Email de notification bulletin de paie envoyé à {payslip.user.email}")
+        except Exception as e:
+            logger.error(f"❌ Erreur d'envoi d'email bulletin de paie à {payslip.user.email}: {str(e)}")
 
 
 class PayslipListView(generics.ListAPIView):
@@ -391,32 +446,4 @@ Votre demande de {doc_request.get_type_display()} a été {action.lower()}.
         
         logger.info(f"✅ Demande de document {action.lower()}: {doc_request.user.email}")
         
-        return Response(DocumentRequestSerializer(doc_request).data)
-    # backend/admin_portail/views.py
-
-class DocumentUploadView(generics.CreateAPIView):
-    serializer_class = DocumentSerializer
-    permission_classes = [IsAdmin]
-    parser_classes = [MultiPartParser, FormParser]
-    
-    def perform_create(self, serializer):
-        user_id = self.request.data.get('user')
-        if user_id:
-            user = get_object_or_404(User, id=user_id)
-            serializer.save(user=user)
-        else:
-            serializer.save(user=self.request.user)
-
-
-class PayslipUploadView(generics.CreateAPIView):
-    serializer_class = PayslipSerializer
-    permission_classes = [IsAdmin]
-    parser_classes = [MultiPartParser, FormParser]
-    
-    def perform_create(self, serializer):
-        user_id = self.request.data.get('user')
-        if user_id:
-            user = get_object_or_404(User, id=user_id)
-            serializer.save(user=user)
-        else:
-            serializer.save(user=self.request.user)
+        return Response(DocumentRequestSerializer(doc_request).data)
