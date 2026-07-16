@@ -392,3 +392,31 @@ Votre demande de {doc_request.get_type_display()} a été {action.lower()}.
         logger.info(f"✅ Demande de document {action.lower()}: {doc_request.user.email}")
         
         return Response(DocumentRequestSerializer(doc_request).data)
+    # backend/admin_portail/views.py
+
+class DocumentUploadView(generics.CreateAPIView):
+    serializer_class = DocumentSerializer
+    permission_classes = [IsAdmin]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def perform_create(self, serializer):
+        user_id = self.request.data.get('user')
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+            serializer.save(user=user)
+        else:
+            serializer.save(user=self.request.user)
+
+
+class PayslipUploadView(generics.CreateAPIView):
+    serializer_class = PayslipSerializer
+    permission_classes = [IsAdmin]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def perform_create(self, serializer):
+        user_id = self.request.data.get('user')
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+            serializer.save(user=user)
+        else:
+            serializer.save(user=self.request.user)

@@ -26,6 +26,8 @@ import Collaborators from "./pages/admin/Collaborators"
 import CreateCollaborator from "./pages/admin/CreateCollaborator"
 import LeaveRequests from "./pages/admin/LeaveRequests"
 import DocumentRequests from "./pages/admin/DocumentRequests"
+import UploadDocument from "./pages/admin/UploadDocument"
+import UploadPayslip from "./pages/admin/UploadPayslip"
 
 import { useAuth } from "./hooks/useAuth"
 
@@ -43,6 +45,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:uidb64/:token/" element={<ResetPassword />} />
+      
 
       {/* ==========================================
           ROUTES EMPLOYÉ
@@ -89,6 +92,8 @@ const AppRoutes = () => {
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="collaborators" element={<Collaborators />} />
         <Route path="collaborators/create" element={<CreateCollaborator />} />
+        <Route path="documents" element={<UploadDocument />} />
+        <Route path="payslips" element={<UploadPayslip />} />
         <Route path="leave-requests" element={<LeaveRequests />} />
         <Route path="document-requests" element={<DocumentRequests />} />
       </Route>

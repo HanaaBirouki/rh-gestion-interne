@@ -37,6 +37,7 @@ const UploadDocument = () => {
   const navigate = useNavigate()
   const [collaborators, setCollaborators] = useState([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const {
     register,
@@ -69,6 +70,8 @@ const UploadDocument = () => {
 
   const onSubmit = async (data) => {
     setLoading(true)
+    setError("")
+    
     try {
       const formData = new FormData()
       formData.append("user", data.user)
@@ -76,17 +79,21 @@ const UploadDocument = () => {
       formData.append("type", data.type)
       formData.append("file_url", data.file[0])
 
-      await api.post("/admin/documents/upload/", formData, {
+      // ✅ APPEL API RÉEL
+      const response = await api.post("/admin/documents/upload/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
 
+      console.log("✅ Document uploadé avec succès:", response.data)
       alert("✅ Document uploadé avec succès !")
       navigate("/admin/documents")
+      
     } catch (error) {
-      console.error("Erreur upload:", error)
-      alert("❌ Erreur lors de l'upload du document.")
+      console.error("❌ Erreur upload:", error)
+      setError(error.response?.data?.message || "Erreur lors de l'upload du document.")
+      alert("❌ Erreur: " + (error.response?.data?.message || "Veuillez réessayer."))
     } finally {
       setLoading(false)
     }
@@ -189,6 +196,13 @@ const UploadDocument = () => {
                 <p className="text-sm text-error mt-1">{errors.file.message}</p>
               )}
             </div>
+
+            {/* Message d'erreur */}
+            {error && (
+              <div className="p-3 bg-error-container/20 border border-error rounded-lg">
+                <p className="text-sm text-error">{error}</p>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant">

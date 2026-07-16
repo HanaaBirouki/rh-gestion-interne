@@ -41,7 +41,7 @@ const UploadPayslip = () => {
   const navigate = useNavigate()
   const [collaborators, setCollaborators] = useState([])
   const [loading, setLoading] = useState(false)
-  const [fileError, setFileError] = useState("")
+  const [error, setError] = useState("")
 
   const {
     register,
@@ -55,17 +55,14 @@ const UploadPayslip = () => {
 
   const selectedFile = watch("file")
 
-  // Charger la liste des collaborateurs
   useEffect(() => {
     const fetchCollaborators = async () => {
       try {
         const response = await api.get("/auth/users/")
-        // Filtrer uniquement les employés (pas les admins)
         const employees = response.data.filter(user => user.role !== "ADMIN")
         setCollaborators(employees)
       } catch (error) {
         console.error("Erreur chargement collaborateurs:", error)
-        // Données fictives
         setCollaborators([
           { id: "1", first_name: "Hanae", last_name: "Birouki", email: "hanae@test.com" },
           { id: "2", first_name: "Marwa", last_name: "Boubekri", email: "marwa@test.com" },
@@ -77,6 +74,8 @@ const UploadPayslip = () => {
 
   const onSubmit = async (data) => {
     setLoading(true)
+    setError("")
+    
     try {
       const formData = new FormData()
       formData.append("user", data.user)
@@ -84,17 +83,21 @@ const UploadPayslip = () => {
       formData.append("year", data.year)
       formData.append("file_url", data.file[0])
 
-      await api.post("/admin/payslips/upload/", formData, {
+      // ✅ APPEL API RÉEL
+      const response = await api.post("/admin/payslips/upload/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
 
+      console.log("✅ Bulletin uploadé avec succès:", response.data)
       alert("✅ Bulletin de paie uploadé avec succès !")
       navigate("/admin/payslips")
+      
     } catch (error) {
-      console.error("Erreur upload:", error)
-      alert("❌ Erreur lors de l'upload du bulletin de paie.")
+      console.error("❌ Erreur upload:", error)
+      setError(error.response?.data?.message || "Erreur lors de l'upload du bulletin de paie.")
+      alert("❌ Erreur: " + (error.response?.data?.message || "Veuillez réessayer."))
     } finally {
       setLoading(false)
     }
@@ -198,10 +201,14 @@ const UploadPayslip = () => {
               {errors.file && (
                 <p className="text-sm text-error mt-1">{errors.file.message}</p>
               )}
-              {fileError && (
-                <p className="text-sm text-error mt-1">{fileError}</p>
-              )}
             </div>
+
+            {/* Message d'erreur */}
+            {error && (
+              <div className="p-3 bg-error-container/20 border border-error rounded-lg">
+                <p className="text-sm text-error">{error}</p>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant">

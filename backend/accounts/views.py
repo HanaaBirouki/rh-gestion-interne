@@ -53,6 +53,7 @@ class LogoutView(APIView):
                           status=status.HTTP_400_BAD_REQUEST)
 
 
+# backend/accounts/views.py
 class PasswordResetRequestView(APIView):
     permission_classes = [permissions.AllowAny]
     
@@ -64,81 +65,52 @@ class PasswordResetRequestView(APIView):
             try:
                 user = User.objects.get(email=email)
                 
-                # Vérifier que l'utilisateur peut se connecter
-                if not user.can_login():
-                    return Response({
-                        'message': '❌ Cet utilisateur n\'a pas le droit de se connecter.'
-                    }, status=status.HTTP_400_BAD_REQUEST)
-                
-                if not user.is_active:
-                    return Response({
-                        'message': '❌ Ce compte est désactivé.'
-                    }, status=status.HTTP_400_BAD_REQUEST)
-                
                 # Générer le token
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
                 token = default_token_generator.make_token(user)
                 
-                # Lien de réinitialisation
-                reset_link = f"http://localhost:3000/reset-password/{uid}/{token}/"
-                
-                # Contenu de l'email
-                subject = '🔑 Réinitialisation de votre mot de passe - WAMA INVEST'
-                
-                message = f"""
-Bonjour {user.get_full_name()},
-
-Vous avez demandé la réinitialisation de votre mot de passe pour l'application WAMA INVEST.
-
-🔗 Cliquez sur le lien ci-dessous pour définir un nouveau mot de passe :
-
-{reset_link}
-
-⏰ Ce lien est valable 24 heures.
-
-🔒 Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.
-
-Cordialement,
-L'équipe WAMA INVEST
-"""
+                # ✅ CORRIGER LE LIEN - Utiliser le bon port (5173)
+                reset_link = f"http://localhost:5173/reset-password/{uid}/{token}/"
                 
                 # Envoyer l'email
-                try:
-                    send_mail(
-                        subject,
-                        message,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [email],
-                        fail_silently=False,
-                    )
+                send_mail(
+                    'Réinitialisation de votre mot de passe',
+                    f"""
+                    Bonjour {user.get_full_name()},
                     
-                    logger.info(f"✅ Email de réinitialisation envoyé à {email}")
+                    Vous avez demandé la réinitialisation de votre mot de passe.
+                    Cliquez sur le lien ci-dessous pour définir un nouveau mot de passe :
                     
-                    return Response({
-                        'message': '✅ Un email de réinitialisation a été envoyé à votre adresse email. Veuillez vérifier votre boîte de réception.'
-                    }, status=status.HTTP_200_OK)
+                    {reset_link}
                     
-                except Exception as email_error:
-                    logger.error(f"❌ Erreur d'envoi d'email à {email}: {str(email_error)}")
-                    return Response({
-                        'message': '❌ Erreur lors de l\'envoi de l\'email. Veuillez réessayer.'
-                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    Ce lien est valable 24h.
+                    
+                    Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.
+                    
+                    Cordialement,
+                    L'équipe WAMA INVEST
+                    """,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                
+                return Response({
+                    'message': '✅ Un email de réinitialisation a été envoyé à votre adresse email.'
+                }, status=status.HTTP_200_OK)
                 
             except User.DoesNotExist:
-                logger.warning(f"❌ Tentative de réinitialisation avec email inexistant: {email}")
                 return Response({
                     'message': '❌ Aucun compte trouvé avec cet email.'
                 }, status=status.HTTP_404_NOT_FOUND)
                 
             except Exception as e:
-                logger.error(f"❌ Erreur inattendue: {str(e)}")
+                print(f"❌ Erreur: {e}")
                 return Response({
-                    'message': '❌ Une erreur est survenue. Veuillez réessayer.'
+                    'message': '❌ Erreur lors de l\'envoi de l\'email.'
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class PasswordResetConfirmView(APIView):
     permission_classes = [permissions.AllowAny]
     

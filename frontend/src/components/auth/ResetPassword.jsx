@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import logo from "../../assets/screen.png"
 
 const resetPasswordSchema = z
   .object({
@@ -58,33 +57,22 @@ const ResetPassword = () => {
     }
   }
 
-  const togglePassword = () => setShowPassword(!showPassword)
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      {/* Background */}
       <div className="fixed inset-0 z-0">
         <div
           className="w-full h-full bg-cover bg-center opacity-40 grayscale-[0.5]"
           style={{
             backgroundImage:
-              'url("https://png.pngtree.com/thumb_back/fw800/background/20230512/pngtree-blue-sky-building-business-background-image_2414713.jpg")',
+              'url("https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80")',
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-surface-container via-transparent to-surface-bright/50" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Brand Header avec Logo */}
         <div className="flex flex-col items-center mb-8">
           <Link to="/login" className="flex flex-col items-center">
-            <div className="w-24 h-24 mb-4">
-              <img
-                src={logo}
-                alt="WAMA RH Logo"
-                className="w-full h-full rounded-xl shadow-lg object-cover"
-              />
-            </div>
             <h1 className="text-3xl font-bold text-primary tracking-tight">
               WAMA RH
             </h1>
@@ -128,7 +116,7 @@ const ResetPassword = () => {
                     <button
                       type="button"
                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-on-surface transition-colors"
-                      onClick={togglePassword}
+                      onClick={() => setShowPassword(!showPassword)}
                     >
                       <span className="material-symbols-outlined text-[20px]">
                         {showPassword ? "visibility_off" : "visibility"}
