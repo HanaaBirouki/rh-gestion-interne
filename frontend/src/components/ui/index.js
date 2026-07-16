@@ -1,4 +1,10 @@
-export { default as Button } from './button';
-export { default as Input } from './input';
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';
-export { default as Label } from './label';
+export { Button } from './button'
+export { Input } from './input'
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card'
+export { Label } from './label'
+export { Badge } from './badge'
+export { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from './select'
+export { Separator } from './separator'
+export { Switch } from './switch'
+export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from './table'
+export { Textarea } from './textarea'

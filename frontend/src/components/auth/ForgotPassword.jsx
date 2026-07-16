@@ -1,23 +1,24 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Link } from "react-router-dom";
-import api from "../../services/api";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
-import Button from "../ui/button";
-import Input from "../ui/input";
-import Label from "../ui/label";
-import screen from "../../assets/screen.png";
+// frontend/src/components/auth/ForgotPassword.jsx
+import React, { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Link } from "react-router-dom"
+import api from "../../services/api"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card"
+import { Button } from "../ui/button"
+import { Input } from "../ui/input"
+import { Label } from "../ui/label"
+import logo from "../../assets/screen.png"
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Email invalide"),
-});
+})
 
 const ForgotPassword = () => {
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState("")
 
   const {
     register,
@@ -26,24 +27,25 @@ const ForgotPassword = () => {
   } = useForm({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: { email: "" },
-  });
+  })
 
   const onSubmit = async (data) => {
-    setLoading(true);
-    setError("");
-    setSuccess(false);
+    setLoading(true)
+    setError("")
+    setSuccess(false)
     try {
-      await api.post("/auth/password-reset/", data);
-      setSuccess(true);
+      await api.post("/auth/password-reset/", data)
+      setSuccess(true)
     } catch (err) {
-      setError(err.response?.data?.message || "Une erreur est survenue");
+      setError(err.response?.data?.message || "Une erreur est survenue")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#f8f9ff]">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      {/* Background */}
       <div className="fixed inset-0 z-0">
         <div
           className="w-full h-full bg-cover bg-center opacity-40 grayscale-[0.5]"
@@ -51,25 +53,22 @@ const ForgotPassword = () => {
             backgroundImage:
               'url("https://png.pngtree.com/thumb_back/fw800/background/20230512/pngtree-blue-sky-building-business-background-image_2414713.jpg")',
           }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-tr from-[#e5eeff] via-transparent to-[#f8f9ff]/50"></div>
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-surface-container via-transparent to-surface-bright/50" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
         {/* Brand Header avec Logo */}
         <div className="flex flex-col items-center mb-8">
           <Link to="/login" className="flex flex-col items-center">
-            {/* Logo Image - AJOUTÉ ICI */}
             <div className="w-24 h-24 mb-4">
               <img
-                src={screen}
+                src={logo}
                 alt="WAMA RH Logo"
                 className="w-full h-full rounded-xl shadow-lg object-cover"
               />
             </div>
-            
-            {/* Brand Name */}
-            <h1 className="text-3xl font-bold text-[#00236f] tracking-tight">
+            <h1 className="text-3xl font-bold text-primary tracking-tight">
               WAMA RH
             </h1>
           </Link>
@@ -100,7 +99,7 @@ const ForgotPassword = () => {
                 <div>
                   <Label htmlFor="email">Email Address</Label>
                   <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#444651]">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
                       <span className="material-symbols-outlined text-[20px]">mail</span>
                     </div>
                     <Input
@@ -108,14 +107,14 @@ const ForgotPassword = () => {
                       type="email"
                       placeholder="name@wamainvest.com"
                       {...register("email")}
-                      className={errors.email ? "border-[#ba1a1a]" : ""}
+                      className={errors.email ? "border-error" : ""}
                     />
                   </div>
                   {errors.email && (
-                    <p className="mt-1 text-sm text-[#ba1a1a]">{errors.email.message}</p>
+                    <p className="mt-1 text-sm text-error">{errors.email.message}</p>
                   )}
                   {error && (
-                    <p className="mt-2 text-sm text-[#ba1a1a] bg-[#ffdad6]/20 p-2 rounded-lg">
+                    <p className="mt-2 text-sm text-error bg-error-container/20 p-2 rounded-lg">
                       {error}
                     </p>
                   )}
@@ -128,7 +127,7 @@ const ForgotPassword = () => {
                 <div className="text-center">
                   <Link
                     to="/login"
-                    className="text-[#0051d5] text-sm font-medium hover:underline decoration-[#0051d5]/30"
+                    className="text-secondary text-sm font-medium hover:underline decoration-secondary/30"
                   >
                     Back to Login
                   </Link>
@@ -139,7 +138,7 @@ const ForgotPassword = () => {
         </Card>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ForgotPassword;
+export default ForgotPassword

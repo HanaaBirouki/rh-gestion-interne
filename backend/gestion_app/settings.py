@@ -4,14 +4,24 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
+# ==========================================
+# CHEMINS DU PROJET
+# ==========================================
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
+# ==========================================
+# SÉCURITÉ
+# ==========================================
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-me')
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# ==========================================
+# APPLICATIONS INSTALLÉES
+# ==========================================
 INSTALLED_APPS = [
+    # Applications Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -19,18 +29,29 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    # Bibliothèques externes
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'drf_yasg',
+    'django_filters',
     
+    # Applications du projet
     'accounts',
+    'admin_portail',
+    'employee_portail',
 ]
 
+# Modèle utilisateur personnalisé
+AUTH_USER_MODEL = 'accounts.User'
+
+# ==========================================
+# MIDDLEWARE
+# ==========================================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Doit être en haut
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -39,6 +60,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# ==========================================
+# URLS ET TEMPLATES
+# ==========================================
 ROOT_URLCONF = 'gestion_app.urls'
 
 TEMPLATES = [
@@ -59,21 +83,73 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gestion_app.wsgi.application'
 
-# ============ BASE DE DONNÉES ============
+# ==========================================
+# BASE DE DONNÉES - PostgreSQL
+# ==========================================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'gestion_db',
-        'USER': 'postgres',
-        'PASSWORD': 'admin123',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME', 'gestion_db'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'admin123'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
-AUTH_USER_MODEL = 'accounts.User'
+# ==========================================
+# VALIDATION DES MOTS DE PASSE
+# ==========================================
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 8},
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
 
-# ============ REST FRAMEWORK ============
+# ==========================================
+# LANGUE ET FUSEAU HORAIRE
+# ==========================================
+LANGUAGE_CODE = 'fr-fr'
+TIME_ZONE = 'Africa/Casablanca'
+USE_I18N = True
+USE_TZ = True
+
+# ==========================================
+# FICHIERS STATIQUES ET MÉDIAS
+# ==========================================
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ==========================================
+# CORS (Cross-Origin Resource Sharing)
+# ==========================================
+# Pour le développement - autorise toutes les origines
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Pour la production, utilisez plutôt ceci :
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://localhost:5173",
+#     "http://localhost:5174",
+#     "https://votre-domaine.com",
+# ]
+# CORS_ALLOW_CREDENTIALS = True
+
+# ==========================================
+# DJANGO REST FRAMEWORK
+# ==========================================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -83,8 +159,14 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
 }
 
+# ==========================================
+# JWT (JSON Web Tokens)
+# ==========================================
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -95,14 +177,13 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
-
-# ============ CONFIGURATION EMAIL ============
-# OPTION 1: Utiliser la console (pour tester - affiche les emails dans le terminal)
-
 # ==========================================
-# ✅ CONFIGURATION EMAIL - GMAIL
+# CONFIGURATION EMAIL
 # ==========================================
+# Option 1: Console (pour le développement - affiche les emails dans le terminal)
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Option 2: Gmail SMTP (pour l'envoi d'emails réels)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -111,23 +192,41 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-
-# ============ VALIDATION MOT DE PASSE ============
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 8}},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
-
-LANGUAGE_CODE = 'fr-fr'
-TIME_ZONE = 'Africa/Casablanca'
-USE_I18N = True
-USE_TZ = True
-
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+# ==========================================
+# TYPE DES IDENTIFIANTS AUTOMATIQUES
+# ==========================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==========================================
+# LOGGING (pour le débogage)
+# ==========================================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'accounts': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'admin_portail': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'employee_portail': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

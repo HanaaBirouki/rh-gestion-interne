@@ -1,3 +1,4 @@
+# backend/accounts/views.py
 from rest_framework import status, generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,21 +12,21 @@ from django.utils.encoding import force_bytes, force_str
 from django.shortcuts import get_object_or_404
 import logging
 
-from .models import LeaveRequest, Document, Payslip, DocumentRequest
 from .serializers import (
     UserSerializer, UserCreateSerializer, LoginSerializer,
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer,
-    LeaveRequestSerializer, DocumentSerializer, PayslipSerializer,
-    DocumentRequestSerializer
 )
-from .permissions import IsAdmin, IsEmployee, IsAdminOrEmployee, IsAdminOrOwner
+from .permissions import IsAdmin
 
 # Configurer le logger
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
-# ============= AUTHENTIFICATION =============
+
+# ==========================================
+# AUTHENTIFICATION
+# ==========================================
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -35,6 +36,7 @@ class LoginView(APIView):
         if serializer.is_valid():
             return Response(serializer.validated_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class LogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -50,9 +52,7 @@ class LogoutView(APIView):
             return Response({'message': 'Erreur lors de la déconnexion'}, 
                           status=status.HTTP_400_BAD_REQUEST)
 
-# ==========================================
-# ✅ VERSION AMÉLIORÉE - PASSWORD RESET
-# ==========================================
+
 class PasswordResetRequestView(APIView):
     permission_classes = [permissions.AllowAny]
     
@@ -138,6 +138,7 @@ L'équipe WAMA INVEST
                 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PasswordResetConfirmView(APIView):
     permission_classes = [permissions.AllowAny]
     
@@ -163,6 +164,7 @@ class PasswordResetConfirmView(APIView):
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
@@ -176,6 +178,7 @@ class ProfileView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class RefreshTokenView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -193,7 +196,10 @@ class RefreshTokenView(APIView):
         except Exception:
             return Response({'error': 'Token invalide'}, status=status.HTTP_400_BAD_REQUEST)
 
-# ============= GESTION DES UTILISATEURS (ADMIN) =============
+
+# ==========================================
+# GESTION DES UTILISATEURS (ADMIN)
+# ==========================================
 
 class UserListView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin]
@@ -257,6 +263,7 @@ L'équipe WAMA INVEST
         except Exception as e:
             logger.error(f"❌ Erreur d'envoi d'invitation à {user.email}: {str(e)}")
 
+
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdmin]
     queryset = User.objects.all()
@@ -297,6 +304,7 @@ L'équipe WAMA INVEST
         except Exception as e:
             logger.error(f"❌ Erreur d'envoi d'activation à {user.email}: {str(e)}")
 
+
 class UserActivationView(APIView):
     permission_classes = [IsAdmin]
     
@@ -313,183 +321,4 @@ class UserActivationView(APIView):
         return Response({
             'message': f"Compte {'activé' if is_active else 'désactivé'} avec succès",
             'is_active': user.is_active
-        })
-
-# ============= GESTION DES CONGÉS =============
-
-class LeaveRequestListView(generics.ListCreateAPIView):
-    serializer_class = LeaveRequestSerializer
-    permission_classes = [IsAdminOrEmployee]
-    
-    def get_queryset(self):
-        if self.request.user.role == 'ADMIN':
-            return LeaveRequest.objects.all().order_by('-created_at')
-        return LeaveRequest.objects.filter(user=self.request.user).order_by('-created_at')
-    
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-class LeaveRequestDetailView(generics.RetrieveUpdateAPIView):
-    serializer_class = LeaveRequestSerializer
-    permission_classes = [IsAdminOrOwner]
-    
-    def get_queryset(self):
-        if self.request.user.role == 'ADMIN':
-            return LeaveRequest.objects.all()
-        return LeaveRequest.objects.filter(user=self.request.user)
-
-class LeaveRequestActionView(APIView):
-    permission_classes = [IsAdmin]
-    
-    def post(self, request, pk):
-        leave_request = get_object_or_404(LeaveRequest, pk=pk)
-        action = request.data.get('action')
-        comment = request.data.get('comment', '')
-        
-        if action not in ['APPROVED', 'REJECTED']:
-            return Response({'error': 'Action invalide'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        leave_request.status = action
-        if comment:
-            leave_request.admin_comment = comment
-        leave_request.save()
-        
-        try:
-            send_mail(
-                f"📋 Demande de congé {action.lower()} - WAMA INVEST",
-                f"""
-Bonjour {leave_request.user.get_full_name()},
-
-Votre demande de congé du {leave_request.start_date} au {leave_request.end_date}
-a été {action.lower()}.
-
-{"💬 Commentaire: " + comment if comment else ""}
-
-Cordialement,
-L'équipe WAMA INVEST
-""",
-                settings.DEFAULT_FROM_EMAIL,
-                [leave_request.user.email],
-                fail_silently=True,
-            )
-        except Exception as e:
-            logger.error(f"❌ Erreur d'envoi d'email de congé: {str(e)}")
-        
-        return Response({
-            'message': f"Demande {action.lower()}",
-            'status': leave_request.status
-        })
-
-# ============= GESTION DES DOCUMENTS =============
-
-class DocumentListView(generics.ListCreateAPIView):
-    serializer_class = DocumentSerializer
-    permission_classes = [IsAdminOrEmployee]
-    
-    def get_queryset(self):
-        if self.request.user.role == 'ADMIN':
-            return Document.objects.all().order_by('-created_at')
-        return Document.objects.filter(user=self.request.user).order_by('-created_at')
-    
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-class DocumentDetailView(generics.RetrieveDestroyAPIView):
-    serializer_class = DocumentSerializer
-    permission_classes = [IsAdminOrOwner]
-    
-    def get_queryset(self):
-        if self.request.user.role == 'ADMIN':
-            return Document.objects.all()
-        return Document.objects.filter(user=self.request.user)
-
-# ============= GESTION DES BULLETINS DE PAIE =============
-
-class PayslipListView(generics.ListCreateAPIView):
-    serializer_class = PayslipSerializer
-    permission_classes = [IsAdminOrEmployee]
-    
-    def get_queryset(self):
-        if self.request.user.role == 'ADMIN':
-            return Payslip.objects.all().order_by('-year', '-month')
-        return Payslip.objects.filter(user=self.request.user).order_by('-year', '-month')
-    
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-class PayslipDetailView(generics.RetrieveDestroyAPIView):
-    serializer_class = PayslipSerializer
-    permission_classes = [IsAdminOrOwner]
-    
-    def get_queryset(self):
-        if self.request.user.role == 'ADMIN':
-            return Payslip.objects.all()
-        return Payslip.objects.filter(user=self.request.user)
-
-# ============= GESTION DES DEMANDES DE DOCUMENTS =============
-
-class DocumentRequestListView(generics.ListCreateAPIView):
-    serializer_class = DocumentRequestSerializer
-    permission_classes = [IsAdminOrEmployee]
-    
-    def get_queryset(self):
-        if self.request.user.role == 'ADMIN':
-            return DocumentRequest.objects.all().order_by('-created_at')
-        return DocumentRequest.objects.filter(user=self.request.user).order_by('-created_at')
-    
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-class DocumentRequestDetailView(generics.RetrieveUpdateAPIView):
-    serializer_class = DocumentRequestSerializer
-    permission_classes = [IsAdminOrOwner]
-    
-    def get_queryset(self):
-        if self.request.user.role == 'ADMIN':
-            return DocumentRequest.objects.all()
-        return DocumentRequest.objects.filter(user=self.request.user)
-
-class DocumentRequestActionView(APIView):
-    permission_classes = [IsAdmin]
-    
-    def post(self, request, pk):
-        doc_request = get_object_or_404(DocumentRequest, pk=pk)
-        action = request.data.get('action')
-        comment = request.data.get('comment', '')
-        file = request.FILES.get('file')
-        
-        if action not in ['READY', 'REJECTED']:
-            return Response({'error': 'Action invalide'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        doc_request.status = action
-        if comment:
-            doc_request.admin_comment = comment
-        if file:
-            doc_request.file_url = file
-        doc_request.save()
-        
-        try:
-            send_mail(
-                f"📄 Demande de document {action.lower()} - WAMA INVEST",
-                f"""
-Bonjour {doc_request.user.get_full_name()},
-
-Votre demande de {doc_request.get_type_display()} a été {action.lower()}.
-
-{"💬 Commentaire: " + comment if comment else ""}
-{"📎 Téléchargez votre document: " + doc_request.file_url.url if doc_request.file_url else ""}
-
-Cordialement,
-L'équipe WAMA INVEST
-""",
-                settings.DEFAULT_FROM_EMAIL,
-                [doc_request.user.email],
-                fail_silently=True,
-            )
-        except Exception as e:
-            logger.error(f"❌ Erreur d'envoi d'email de document: {str(e)}")
-        
-        return Response({
-            'message': f"Demande {action.lower()}",
-            'status': doc_request.status
         })

@@ -1,35 +1,36 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import Button from "../ui/button";
+// frontend/src/components/layout/Navbar.jsx
+import React from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../../hooks/useAuth"
+import { Button } from "../ui/button"
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
+    await logout()
+    navigate("/login")
+  }
 
   return (
-    <nav className="bg-white border-b border-[#c5c5d3] px-4 py-3">
+    <nav className="bg-white border-b border-outline-variant px-4 py-3">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Link to="/dashboard" className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#1e3a8a]">domain</span>
-            <span className="text-xl font-semibold text-[#00236f]">WAMA INVEST</span>
+            <span className="material-symbols-outlined text-primary-container">domain</span>
+            <span className="text-xl font-semibold text-primary">WAMA INVEST</span>
           </Link>
           <div className="hidden md:flex gap-4 ml-8">
             <Link
               to="/dashboard"
-              className="text-[#444651] hover:text-[#0b1c30] text-base"
+              className="text-on-surface-variant hover:text-on-surface text-base transition-colors"
             >
               Dashboard
             </Link>
             <Link
               to="/profile"
-              className="text-[#444651] hover:text-[#0b1c30] text-base"
+              className="text-on-surface-variant hover:text-on-surface text-base transition-colors"
             >
               Profile
             </Link>
@@ -37,7 +38,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="text-[#444651] text-sm">
+          <span className="text-on-surface-variant text-sm">
             {user?.first_name} {user?.last_name}
           </span>
           <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -47,7 +48,7 @@ const Navbar = () => {
         </div>
       </div>
     </nav>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

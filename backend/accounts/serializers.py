@@ -1,58 +1,98 @@
+# backend/accounts/serializers.py
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import LeaveRequest, Document, Payslip, DocumentRequest
+from .models import User
 
 User = get_user_model()
 
+
+# ==========================================
+# SÉRIALISEURS POUR L'UTILISATEUR
+# ==========================================
+
 class UserSerializer(serializers.ModelSerializer):
+    """Sérialiseur complet pour afficher les informations d'un utilisateur"""
     full_name = serializers.SerializerMethodField()
     
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'first_name', 'last_name', 'full_name',
-                 'role', 'phone', 'address', 'avatar_url', 'contract_type', 
-                 'position', 'department', 'hire_date', 'end_date', 'salary',
-                 'annual_leave_days', 'is_active', 'created_at']
+        fields = [
+            'id', 'email', 'username', 'first_name', 'last_name', 'full_name',
+            'role', 'phone', 'address', 'avatar_url', 'contract_type', 
+            'position', 'department', 'hire_date', 'end_date', 'salary',
+            'annual_leave_days', 'is_active', 'is_active_employee', 'created_at'
+        ]
         read_only_fields = ['id', 'created_at']
     
     def get_full_name(self, obj):
         return obj.get_full_name()
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    """Sérialiseur simplifié pour la liste des utilisateurs"""
+    
+    class Meta:
+        model = User
+        fields = [
+            'id', 'email', 'first_name', 'last_name', 'role',
+            'contract_type', 'position', 'department', 'hire_date',
+            'is_active', 'is_active_employee', 'phone',
+        ]
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """Sérialiseur pour la création d'un utilisateur sans mot de passe"""
     
     class Meta:
         model = User
-        fields = ['email', 'username', 'first_name', 'last_name', 'role', 
-                 'phone', 'address', 'contract_type', 'position', 'department',
-                 'hire_date', 'end_date', 'salary', 'annual_leave_days']
+        fields = [
+            'email', 'username', 'first_name', 'last_name', 'role',
+            'phone', 'address', 'contract_type', 'position', 'department',
+            'hire_date', 'end_date', 'salary', 'annual_leave_days',
+        ]
     
     def validate(self, data):
         # Un stagiaire/freelance n'a pas besoin de compte actif
         if data.get('role') in ['STAGIAIRE', 'FREELANCE']:
             data['is_active'] = False
+            data['is_active_employee'] = False
         else:
             data['is_active'] = True
+            data['is_active_employee'] = True
         return data
     
     def create(self, validated_data):
         # Créer l'utilisateur sans mot de passe
-        user = User.objects.create_user(
+        user = User(
             email=validated_data['email'],
             username=validated_data.get('username', validated_data['email']),
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
             role=validated_data.get('role', 'EMPLOYE'),
-            password=None,  # Pas de mot de passe
-            **{k: v for k, v in validated_data.items() 
-               if k not in ['email', 'username', 'first_name', 'last_name', 'role']}
+            is_active=validated_data.get('is_active', True),
+            is_active_employee=validated_data.get('is_active_employee', True),
         )
+        
+        # Définir les autres champs
+        for field in ['phone', 'address', 'contract_type', 'position', 
+                      'department', 'hire_date', 'end_date', 'salary', 
+                      'annual_leave_days']:
+            if field in validated_data:
+                setattr(user, field, validated_data[field])
+        
+        user.set_unusable_password()  # Pas de mot de passe pour le moment
+        user.save()
         return user
 
+
+# ==========================================
+# SÉRIALISEURS POUR L'AUTHENTIFICATION
+# ==========================================
+
 class LoginSerializer(serializers.Serializer):
+    """Sérialiseur pour la connexion"""
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     
@@ -85,7 +125,9 @@ class LoginSerializer(serializers.Serializer):
             'refresh': str(refresh)
         }
 
+
 class PasswordResetRequestSerializer(serializers.Serializer):
+    """Sérialiseur pour la demande de réinitialisation de mot de passe"""
     email = serializers.EmailField()
     
     def validate_email(self, value):
@@ -101,41 +143,15 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             raise serializers.ValidationError("Aucun utilisateur avec cet email")
         return value
 
+
 class PasswordResetConfirmSerializer(serializers.Serializer):
+    """Sérialiseur pour la confirmation de réinitialisation de mot de passe"""
     password = serializers.CharField(write_only=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True)
     
     def validate(self, data):
         if data['password'] != data['password_confirm']:
-            raise serializers.ValidationError({"password_confirm": "Les mots de passe ne correspondent pas"})
+            raise serializers.ValidationError(
+                {"password_confirm": "Les mots de passe ne correspondent pas"}
+            )
         return data
-
-class LeaveRequestSerializer(serializers.ModelSerializer):
-    user_name = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = LeaveRequest
-        fields = ['id', 'user', 'user_name', 'type', 'start_date', 'end_date',
-                 'working_days', 'reason', 'status', 'admin_comment', 'created_at']
-        read_only_fields = ['id', 'user', 'status', 'admin_comment', 'created_at']
-    
-    def get_user_name(self, obj):
-        return obj.user.get_full_name()
-
-class DocumentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Document
-        fields = ['id', 'user', 'name', 'type', 'file_url', 'created_at']
-        read_only_fields = ['id', 'created_at']
-
-class PayslipSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Payslip
-        fields = ['id', 'user', 'month', 'year', 'file_url', 'created_at']
-        read_only_fields = ['id', 'created_at']
-
-class DocumentRequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DocumentRequest
-        fields = ['id', 'user', 'type', 'status', 'file_url', 'admin_comment', 'created_at']
-        read_only_fields = ['id', 'status', 'file_url', 'admin_comment', 'created_at']
