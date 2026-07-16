@@ -1,5 +1,5 @@
 // frontend/src/pages/LeavesPage.jsx
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Calendar, Clock, CheckCircle, XCircle } from "lucide-react"
 
 import { Button } from "../components/ui/button"
@@ -8,32 +8,29 @@ import { Label } from "../components/ui/label"
 import { Textarea } from "../components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 import { Badge } from "../components/ui/badge"
+import api from "../services/api"
 
 const LeavesPage = () => {
   const [leaveType, setLeaveType] = useState("PAID")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [reason, setReason] = useState("")
-  const [leaves, setLeaves] = useState([
-    {
-      id: 1,
-      type: "PAID",
-      start_date: "2026-07-16",
-      end_date: "2026-07-22",
-      working_days: 5,
-      reason: "Vacances d'été",
-      status: "PENDING",
-    },
-    {
-      id: 2,
-      type: "SICK",
-      start_date: "2026-06-10",
-      end_date: "2026-06-11",
-      working_days: 2,
-      reason: "Rendez-vous médical",
-      status: "APPROVED",
-    },
-  ])
+  const [leaves, setLeaves] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchLeaves = async () => {
+      try {
+        const response = await api.get("/employee/leave-requests/")
+        setLeaves(response.data)
+      } catch (error) {
+        console.error("Erreur chargement congés:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchLeaves()
+  }, [])
 
   const calculateWorkingDays = () => {
     if (!startDate || !endDate) return 0
@@ -50,7 +47,7 @@ const LeavesPage = () => {
     return days
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const workingDays = calculateWorkingDays()
     if (!startDate || !endDate || !reason) {
       alert("Veuillez remplir tous les champs.")
@@ -60,22 +57,26 @@ const LeavesPage = () => {
       alert("Veuillez vérifier les dates.")
       return
     }
-    setLeaves([
-      {
-        id: Date.now(),
+
+    try {
+      await api.post("/employee/leave-requests/", {
         type: leaveType,
         start_date: startDate,
         end_date: endDate,
-        working_days: workingDays,
         reason: reason,
-        status: "PENDING",
-      },
-      ...leaves,
-    ])
-    setStartDate("")
-    setEndDate("")
-    setReason("")
-    alert("Demande de congé envoyée avec succès.")
+      })
+      alert("Demande de congé envoyée avec succès.")
+      setStartDate("")
+      setEndDate("")
+      setReason("")
+      
+      // Recharger
+      const response = await api.get("/employee/leave-requests/")
+      setLeaves(response.data)
+    } catch (error) {
+      console.error("Erreur envoi demande congé:", error)
+      alert("Erreur lors de l'envoi de la demande de congé.")
+    }
   }
 
   const getStatusBadge = (status) => {
@@ -99,7 +100,7 @@ const LeavesPage = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold text-on-surface mb-2">Mes Congés</h1>
-      <p className="text-on-surface-variant text-sm mb-6">Gérez vos demandes de congé.</p>
+      <p className="text-on-surface-variant text-sm mb-6">Gérer vos demandes de congé.</p>
 
       {/* Nouvelle demande */}
       <div className="bg-surface-container-lowest rounded-2xl shadow-md p-6 border border-outline-variant mb-6">
@@ -142,8 +143,12 @@ const LeavesPage = () => {
       {/* Historique */}
       <div className="bg-surface-container-lowest rounded-2xl shadow-md p-6 border border-outline-variant">
         <h2 className="text-lg font-semibold text-on-surface mb-4">Historique des demandes</h2>
-        {leaves.length === 0 ? (
-          <p className="text-on-surface-variant text-sm">Aucune demande de congé.</p>
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-container"></div>
+          </div>
+        ) : leaves.length === 0 ? (
+          <p className="text-on-surface-variant text-sm py-8 text-center">Aucune demande de congé.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">

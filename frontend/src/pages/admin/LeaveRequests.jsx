@@ -33,15 +33,17 @@ const LeaveRequests = () => {
     fetchRequests()
   }, [])
 
-  const handleReview = async (id, status) => {
+  const handleReview = async (id, decision) => {
     try {
-      await api.post(`/admin/leave-requests/${id}/review/`, {
-        status,
+      await api.patch(`/admin/leave-requests/${id}/review/`, {
+        status: decision,
         admin_comment: comments[id] || "",
       })
+      // Remove from PENDING list after successful review
       setRequests(prev => prev.filter(r => r.id !== id))
     } catch (error) {
-      console.error("Erreur traitement demande:", error)
+      console.error("Erreur traitement demande:", error.response?.data || error)
+      alert("Erreur lors du traitement de la demande.")
     }
   }
 

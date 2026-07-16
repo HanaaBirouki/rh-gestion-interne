@@ -17,7 +17,7 @@ const RequestsPage = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await api.get("/admin/document-requests/")
+        const response = await api.get("/employee/document-requests/")
         setRequests(response.data)
       } catch (error) {
         console.error("Erreur chargement demandes:", error)
@@ -35,10 +35,10 @@ const RequestsPage = () => {
 
   const handleSubmit = async () => {
     try {
-      await api.post("/admin/document-requests/", { type: docType })
+      await api.post("/employee/document-requests/", { type: docType })
       alert("Demande envoyée avec succès.")
       // Recharger la liste
-      const response = await api.get("/admin/document-requests/")
+      const response = await api.get("/employee/document-requests/")
       setRequests(response.data)
     } catch (error) {
       alert("Erreur lors de l'envoi de la demande.")

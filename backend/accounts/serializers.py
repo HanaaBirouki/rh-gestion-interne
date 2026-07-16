@@ -44,14 +44,16 @@ class UserListSerializer(serializers.ModelSerializer):
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """Sérialiseur pour la création d'un utilisateur sans mot de passe"""
+    username = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     
     class Meta:
         model = User
         fields = [
-            'email', 'username', 'first_name', 'last_name', 'role',
+            'id', 'email', 'username', 'first_name', 'last_name', 'role',
             'phone', 'address', 'contract_type', 'position', 'department',
             'hire_date', 'end_date', 'salary', 'annual_leave_days',
         ]
+        read_only_fields = ['id']
     
     def validate(self, data):
         # Un stagiaire/freelance n'a pas besoin de compte actif

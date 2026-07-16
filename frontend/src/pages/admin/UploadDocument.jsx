@@ -110,7 +110,6 @@ const UploadDocument = () => {
       <div className="p-6">
         <div className="bg-surface-container-lowest rounded-xl border border-outline-variant max-w-2xl overflow-hidden">
           <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-            {/* Collaborateur */}
             <div>
               <Label>Collaborateur *</Label>
               <Select onValueChange={(val) => setValue("user", val)}>
@@ -119,7 +118,7 @@ const UploadDocument = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {collaborators.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
+                    <SelectItem key={c.id} value={String(c.id)}>
                       {c.first_name} {c.last_name} ({c.email})
                     </SelectItem>
                   ))}

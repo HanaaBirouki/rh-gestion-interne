@@ -15,7 +15,7 @@ const DocumentsPage = () => {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const response = await api.get("/admin/documents/")
+        const response = await api.get("/employee/documents/")
         setDocuments(response.data)
       } catch (error) {
         console.error("Erreur chargement documents:", error)

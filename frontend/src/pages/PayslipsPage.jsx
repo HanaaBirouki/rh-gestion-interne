@@ -14,7 +14,7 @@ const PayslipsPage = () => {
   useEffect(() => {
     const fetchPayslips = async () => {
       try {
-        const response = await api.get("/admin/payslips/")
+        const response = await api.get("/employee/payslips/")
         setPayslips(response.data)
       } catch (error) {
         console.error("Erreur chargement bulletins:", error)
