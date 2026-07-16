@@ -195,39 +195,36 @@ export default function LeavesPage() {
   );
 
   const loadData = async () => {
-    setLoading(true);
-    setMessage("");
-    setMessageType("");
+  setLoading(true);
+  setMessage("");
+  setMessageType("");
 
-    try {
-      const [profilesResponse, leavesResponse] =
-        await Promise.all([
-          api.get<EmployeeProfile[]>("profiles/"),
-          api.get<LeaveRequest[]>("leaves/"),
-        ]);
+  try {
+    const [profilesResponse, leavesResponse] = await Promise.all([
+      api.get<EmployeeProfile[]>("profiles/"),
+      api.get<LeaveRequest[]>("leaves/"),
+    ]);
 
-      if (profilesResponse.data.length === 0) {
-        setEmployeeId(null);
-        setMessage(
-          "Aucun profil employé trouvé. Créez d’abord le profil."
-        );
-        setMessageType("error");
-      } else {
-        setEmployeeId(profilesResponse.data[0].id);
-      }
-
-      setLeaves(leavesResponse.data);
-    } catch (error) {
-      console.error(error);
-
+    if (profilesResponse.data.length === 0) {
+      setEmployeeId(null);
       setMessage(
-        "Impossible de charger les demandes de congé."
+        "Aucun profil employé trouvé. Créez d’abord le profil."
       );
       setMessageType("error");
-    } finally {
-      setLoading(false);
+    } else {
+      setEmployeeId(profilesResponse.data[0].id);
     }
-  };
+
+    setLeaves(leavesResponse.data);
+  } catch (error) {
+    console.error("Erreur chargement congés :", error);
+
+    setMessage("Impossible de charger les demandes de congé.");
+    setMessageType("error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     void loadData();
