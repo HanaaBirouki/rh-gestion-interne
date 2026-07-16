@@ -65,3 +65,31 @@ body {
   background-color: #1e3a8a;
   color: #ffffff;
 }
+/* frontend/src/index.css - Ajouter à la fin */
+
+/* Animation pour l'image au survol */
+.duration-10000 {
+  transition-duration: 10000ms;
+}
+
+/* Glass effect pour la carte */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Amélioration du focus */
+input:focus {
+  box-shadow: 0 0 0 2px rgba(0, 35, 110, 0.1);
+}
+
+/* Effet de survol sur les liens */
+.hover\:brightness-110:hover {
+  filter: brightness(1.1);
+}
+
+/* Transition pour l'image */
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}

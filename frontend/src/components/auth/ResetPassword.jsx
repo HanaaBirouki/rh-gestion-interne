@@ -64,7 +64,7 @@ const ResetPassword = () => {
           className="w-full h-full bg-cover bg-center opacity-40 grayscale-[0.5]"
           style={{
             backgroundImage:
-              'url("https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80")',
+              'url("https://png.pngtree.com/thumb_back/fw800/background/20230512/pngtree-blue-sky-building-business-background-image_2414713.jpg")',
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-surface-container via-transparent to-surface-bright/50" />
@@ -73,6 +73,7 @@ const ResetPassword = () => {
       <div className="relative z-10 w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
           <Link to="/login" className="flex flex-col items-center">
+            <img src="screen.png" alt="Logo" className="w-20 h-20 mb-4" />
             <h1 className="text-3xl font-bold text-primary tracking-tight">
               WAMA RH
             </h1>
