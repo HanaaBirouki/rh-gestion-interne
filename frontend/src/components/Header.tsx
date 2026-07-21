@@ -3,6 +3,7 @@ import { Bell, HelpCircle, Search } from "lucide-react";
 export default function Header() {
   return (
     <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-slate-200 bg-white px-6 lg:px-8">
+      {/* Recherche */}
       <div className="relative w-full max-w-xl">
         <Search
           size={18}
@@ -12,30 +13,34 @@ export default function Header() {
         <input
           type="text"
           placeholder="Rechercher dans WAMA RH..."
-          className="h-11 w-full rounded-xl border border-slate-200 bg-[#F7F9FD] pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-[#2F67F6] focus:bg-white focus:ring-4 focus:ring-[#2F67F6]/10"
+          className="h-11 w-full rounded-xl border border-slate-200 bg-[#F7F9FD] pl-11 pr-4 text-sm text-slate-700 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-[#2F67F6] focus:bg-white focus:ring-4 focus:ring-[#2F67F6]/10"
         />
       </div>
 
-      <div className="ml-6 flex items-center gap-4">
+      {/* Actions utilisateur */}
+      <div className="ml-6 flex shrink-0 items-center gap-3">
         <button
           type="button"
-          className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-[#F1F5FF] hover:text-[#1742A0]"
+          aria-label="Notifications"
+          className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition-all duration-200 hover:scale-105 hover:bg-[#F1F5FF] hover:text-[#1742A0]"
         >
           <Bell size={19} />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
+
+          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
         </button>
 
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-[#F1F5FF] hover:text-[#1742A0]"
+          aria-label="Aide"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition-all duration-200 hover:scale-105 hover:bg-[#F1F5FF] hover:text-[#1742A0]"
         >
           <HelpCircle size={19} />
         </button>
 
-        <div className="h-8 w-px bg-slate-200" />
+        <div className="mx-1 h-8 w-px bg-slate-200" />
 
-        <div className="flex items-center gap-3">
-          <div className="text-right">
+        <div className="flex items-center gap-3 rounded-xl px-2 py-1 transition hover:bg-slate-50">
+          <div className="hidden text-right sm:block">
             <p className="text-sm font-semibold text-[#0F2557]">
               Marwa Boubekri
             </p>
@@ -45,7 +50,7 @@ export default function Header() {
             </p>
           </div>
 
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#DDE7FF] text-sm font-bold text-[#1742A0]">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#DDE7FF] text-sm font-bold text-[#1742A0] shadow-sm">
             MB
           </div>
         </div>
