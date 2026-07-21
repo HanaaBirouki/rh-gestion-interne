@@ -1,24 +1,27 @@
-// frontend/src/components/auth/Login.jsx
-import React, { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Link, useNavigate } from "react-router-dom"
-import { useAuth } from "../../hooks/useAuth"
-import logo from "../../assets/screen.png"
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
+import { Button } from "../ui/button";
+import Input from "../ui/input";
+import Label from "../ui/label";
+import screen from "../../assets/screen.png";
 
 const loginSchema = z.object({
   email: z.string().email("Email invalide"),
   password: z.string().min(6, "Mot de passe doit contenir au moins 6 caractères"),
   remember: z.boolean().optional(),
-})
+});
 
 const Login = () => {
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -31,134 +34,123 @@ const Login = () => {
       password: "",
       remember: false,
     },
-  })
+  });
 
   const onSubmit = async (data) => {
-    setLoading(true)
-    setError("")
+    setLoading(true);
+    setError("");
     try {
-      const response = await login(data.email, data.password)
-      const userRole = response?.user?.role
+      const response = await login(data.email, data.password);
+      
+      // ✅ Récupérer le rôle de l'utilisateur
+      const userRole = response?.user?.role;
+      
+      // ✅ Rediriger selon le rôle
       if (userRole === "ADMIN") {
-        navigate("/admin/dashboard")
+        navigate("/admin/dashboard");
       } else if (userRole === "EMPLOYE") {
-        navigate("/employee/dashboard")
+        navigate("/employee/dashboard");
       } else {
-        navigate("/dashboard")
+        // Par défaut, rediriger vers /dashboard
+        navigate("/dashboard");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Email ou mot de passe incorrect")
+      setError(err.response?.data?.message || "Email ou mot de passe incorrect");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const togglePassword = () => setShowPassword(!showPassword)
+  const togglePassword = () => setShowPassword(!showPassword);
 
   return (
-    <div className="min-h-screen flex bg-background">
-      {/* ==========================================
-          LEFT SIDE - IMAGE PANEL
-          ========================================== */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#f8f9ff]">
+      {/* Background */}
+      <div className="fixed inset-0 z-0">
         <div
-          className="w-full h-full bg-cover bg-center transition-transform duration-10000 hover:scale-105"
+          className="w-full h-full bg-cover bg-center opacity-40 grayscale-[0.5]"
           style={{
             backgroundImage:
-              'url("https://lh3.googleusercontent.com/aida-public/AB6AXuC8VTk9Cdhy3k0Yg80jlvRqJ_3zr9K3zWd1EWBrqDpr7hm3gr4dnRhb3QIX8VU5UK1xq8K1p5HYtgNgxwE3HQalDVeckUyXWOiIxkvObTkdp5lMGXamHBnp9uDYg_FUe0w_z-qutPBZ-85n7sm2_Qv4zOPeOvhckoDbKxMMHyAauZPxX4NXBH64DHv2VQkhRis8g-FXUyFkKlDDvng4f2aBy2GrZQkWa-qOEW3xv3ZaW3bIj4t8LYUz")',
+              'url("https://png.pngtree.com/thumb_back/fw800/background/20230512/pngtree-blue-sky-building-business-background-image_2414713.jpg")',
           }}
-        >
-          <div className="absolute inset-0 bg-primary/20 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary/40 to-transparent" />
-
-          {/* Floating Brand Elements */}
-          <div className="absolute bottom-8 left-8 right-8 p-6 bg-white/10 backdrop-blur-lg rounded-xl border border-outline-variant/30 shadow-xl max-w-lg">
-            <h2 className="text-2xl font-bold text-primary mb-2">
-              Empowering Your Workforce
-            </h2>
-            <p className="text-sm text-on-surface-variant">
-              Manage HR operations, employee relations, and talent development with WAMA RH's unified professional suite.
-            </p>
-          </div>
-        </div>
+        ></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#e5eeff] via-transparent to-[#f8f9ff]/50"></div>
       </div>
 
-      {/* ==========================================
-          RIGHT SIDE - LOGIN FORM
-          ========================================== */}
-      <div className="w-full lg:w-1/2 flex flex-col relative bg-surface-container-lowest">
-        {/* Header */}
-        <header className="flex justify-between items-center px-6 py-4">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="WAMA RH" className="h-10 w-10 rounded-xl object-contain" />
-            <span className="text-2xl font-bold text-primary tracking-tight">WAMA RH</span>
+      {/* Login Container */}
+      <div className="relative z-10 w-full max-w-md">
+        {/* Brand Header avec Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-24 h-24 mb-4">
+            <img
+              src={screen}
+              alt="WAMA RH Logo"
+              className="w-full h-full rounded-xl shadow-lg object-cover"
+            />
           </div>
-        </header>
+          <h1 className="text-3xl font-bold text-[#00236f] tracking-tight">
+            WAMA RH
+          </h1>
+          <p className="text-sm text-[#444651] mt-1">
+            Employee Portal
+          </p>
+        </div>
 
-        {/* Login Content */}
-        <main className="flex-1 flex items-center justify-center px-6 py-8">
-          <div className="w-full max-w-[440px]">
-            <div className="mb-8 text-center lg:text-left">
-              <h1 className="text-3xl font-bold text-on-surface mb-1">Welcome back</h1>
-              <p className="text-base text-on-surface-variant">
-                Please enter your details to access your employee portal.
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Login Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Welcome Back</CardTitle>
+            <CardDescription>
+              Please enter your credentials to access the employee portal.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Email Field */}
-              <div className="space-y-1">
-                <label htmlFor="email" className="text-sm font-medium text-on-surface">
-                  Work Email
-                </label>
+              <div>
+                <Label htmlFor="email">Email Address</Label>
                 <div className="relative group">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-[20px]">
-                    mail
-                  </span>
-                  <input
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#444651] group-focus-within:text-[#0051d5]">
+                    <span className="material-symbols-outlined text-[20px]">mail</span>
+                  </div>
+                  <Input
                     id="email"
                     type="email"
-                    placeholder="name@gmail.com"
-                    className={`w-full pl-10 pr-3 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/10 focus:border-primary outline-none transition-all text-sm ${
-                      errors.email ? "border-error" : ""
-                    }`}
+                    placeholder="name@wamainvest.com"
                     {...register("email")}
+                    className={errors.email ? "border-[#ba1a1a]" : ""}
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-sm text-error">{errors.email.message}</p>
+                  <p className="mt-1 text-sm text-[#ba1a1a]">{errors.email.message}</p>
                 )}
               </div>
 
               {/* Password Field */}
-              <div className="space-y-1">
-                <div className="flex justify-between items-center">
-                  <label htmlFor="password" className="text-sm font-medium text-on-surface">
-                    Password
-                  </label>
+              <div>
+                <div className="flex justify-between mb-2">
+                  <Label htmlFor="password">Password</Label>
                   <Link
                     to="/forgot-password"
-                    className="text-xs font-semibold text-primary hover:underline transition-all"
+                    className="text-[#0051d5] text-sm font-medium hover:underline decoration-[#0051d5]/30"
                   >
                     Forgot Password?
                   </Link>
                 </div>
                 <div className="relative group">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-[20px]">
-                    lock
-                  </span>
-                  <input
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#444651] group-focus-within:text-[#0051d5]">
+                    <span className="material-symbols-outlined text-[20px]">lock</span>
+                  </div>
+                  <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className={`w-full pl-10 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/10 focus:border-primary outline-none transition-all text-sm ${
-                      errors.password ? "border-error" : ""
-                    }`}
                     {...register("password")}
+                    className={errors.password ? "border-[#ba1a1a]" : ""}
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#444651] hover:text-[#0b1c30] transition-colors"
                     onClick={togglePassword}
                   >
                     <span className="material-symbols-outlined text-[20px]">
@@ -167,60 +159,53 @@ const Login = () => {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-error">{errors.password.message}</p>
+                  <p className="mt-1 text-sm text-[#ba1a1a]">{errors.password.message}</p>
                 )}
                 {error && (
-                  <p className="text-sm text-error bg-error-container/20 p-2 rounded-lg">
+                  <p className="mt-2 text-sm text-[#ba1a1a] bg-[#ffdad6]/20 p-2 rounded-lg">
                     {error}
                   </p>
                 )}
               </div>
 
               {/* Remember Me */}
-              <div className="flex items-center gap-2 py-1">
+              <div className="flex items-center">
                 <input
                   id="remember"
                   type="checkbox"
-                  className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/20 cursor-pointer"
+                  className="h-4 w-4 text-[#0051d5] border-[#c5c5d3] rounded focus:ring-[#0051d5] cursor-pointer"
                   {...register("remember")}
                 />
-                <label htmlFor="remember" className="text-sm text-on-surface-variant cursor-pointer select-none">
+                <label
+                  htmlFor="remember"
+                  className="ml-2 block text-sm text-[#444651] cursor-pointer select-none"
+                >
                   Remember this device for 30 days
                 </label>
               </div>
 
-              {/* Sign In Button - Sans flèche */}
+              {/* Submit Button */}
               <button
                 type="submit"
+                className="w-full bg-[#1e3a8a] text-white py-3.5 rounded-lg font-medium hover:bg-[#00236f] transition-all duration-200 active:scale-[0.98] shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={loading}
-                className="w-full py-2.5 bg-primary text-on-primary font-medium text-base rounded-lg shadow-lg shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Signing in..." : "Sign In"}
+                <span className="material-symbols-outlined text-[18px]">login</span>
               </button>
             </form>
-          </div>
-        </main>
 
-        {/* Footer */}
-        <footer className="flex flex-col md:flex-row justify-between items-center px-6 py-4 border-t border-outline-variant gap-2">
-          <div className="text-xs text-on-secondary-fixed-variant order-2 md:order-1">
-            © 2026 WAMA INVEST Group. All rights reserved.
-          </div>
-          <div className="flex gap-4 text-xs order-1 md:order-2">
-            <a href="#" className="text-on-secondary-fixed-variant hover:text-primary transition-colors">
-              Privacy Policy
-            </a>
-            <a href="#" className="text-on-secondary-fixed-variant hover:text-primary transition-colors">
-              Terms of Service
-            </a>
-            <a href="#" className="text-on-secondary-fixed-variant hover:text-primary transition-colors">
-              Contact Support
-            </a>
-          </div>
-        </footer>
+            {/* Footer */}
+            <footer className="mt-8 text-center space-y-2">
+              <p className="text-xs text-[#444651]">
+                © 2026 WAMA INVEST Group. All rights reserved.
+              </p>
+            </footer>
+          </CardContent>
+        </Card>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
