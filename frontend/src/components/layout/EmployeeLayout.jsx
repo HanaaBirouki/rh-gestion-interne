@@ -11,7 +11,7 @@ import {
 
 import { useAuth } from "../../hooks/useAuth"
 import logo from "../../assets/screen.png"
-import Header from "../Header"
+import Header from "./Header"
 
 const navItems = [
   { to: "/profile", label: "Profil", icon: UserRound },

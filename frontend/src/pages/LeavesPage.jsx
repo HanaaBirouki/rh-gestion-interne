@@ -43,9 +43,15 @@ const LeavesPage = () => {
       setLoading(true)
       const response = await api.get("/employee/leave-requests/")
       setLeaves(response.data)
-    } catch (error) {
-      console.error("Erreur chargement congés :", error)
-    } finally {
+    }  catch (error) {
+  console.error("Erreur complète :", error)
+  console.error("Réponse backend :", error.response?.data)
+
+  alert(
+    JSON.stringify(error.response?.data) ||
+    "Erreur lors de l'envoi de la demande de congé."
+  )
+}finally {
       setLoading(false)
     }
   }
@@ -112,30 +118,38 @@ const LeavesPage = () => {
       return
     }
 
-    try {
-      setSubmitting(true)
+  try {
+  setSubmitting(true)
 
-      await api.post("/employee/leave-requests/", {
-        type: leaveType,
-        start_date: startDate,
-        end_date: endDate,
-        reason: reason.trim(),
-      })
+  await api.post("/employee/leave-requests/", {
+    type: leaveType,
+    start_date: startDate,
+    end_date: endDate,
+    working_days: workingDays,
+    reason: reason.trim(),
+  })
 
-      alert("Demande de congé envoyée avec succès.")
+  alert("Demande de congé envoyée avec succès.")
 
-      setLeaveType("PAID")
-      setStartDate("")
-      setEndDate("")
-      setReason("")
+  setLeaveType("PAID")
+  setStartDate("")
+  setEndDate("")
+  setReason("")
 
-      await fetchLeaves()
-    } catch (error) {
-      console.error("Erreur envoi demande congé :", error)
-      alert("Erreur lors de l'envoi de la demande de congé.")
-    } finally {
-      setSubmitting(false)
-    }
+  await fetchLeaves()
+} catch (error) {
+  console.error("Erreur complète :", error)
+  console.error("Statut :", error.response?.status)
+  console.error("Réponse backend :", error.response?.data)
+
+  alert(
+    error.response?.data
+      ? JSON.stringify(error.response.data)
+      : `Erreur réseau ou URL incorrecte : ${error.message}`
+  )
+} finally {
+  setSubmitting(false)
+}
   }
 
   const getStatusBadge = (status) => {
