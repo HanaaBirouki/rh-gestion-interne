@@ -346,16 +346,3 @@ body {
   background: #757682;
 }
 
-/* ==========================================
-   SELECTION
-   ========================================== */
-
-::selection {
-  background-color: #1e3a8a;
-  color: #ffffff;
-}
-
-::-moz-selection {
-  background-color: #1e3a8a;
-  color: #ffffff;
-}

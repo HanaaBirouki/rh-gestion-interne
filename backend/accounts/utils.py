@@ -21,16 +21,16 @@ def calculate_working_days(start_date, end_date):
     
     # Jours fériés au Maroc (à compléter selon le calendrier)
     morocco_holidays = [
-        # Dates fixes 2024
-        # datetime(2024, 1, 1),    # Nouvel An
-        # datetime(2024, 1, 11),   # Manifeste de l'Indépendance
-        # datetime(2024, 5, 1),    # Fête du Travail
-        # datetime(2024, 7, 30),   # Fête du Trône
-        # datetime(2024, 8, 14),   # Oued Ed-Dahab
-        # datetime(2024, 8, 20),   # Révolution du Roi et du Peuple
-        # datetime(2024, 8, 21),   # Fête de la Jeunesse
-        # datetime(2024, 11, 6),   # Marche Verte
-        # datetime(2024, 11, 18),  # Fête de l'Indépendance
+         Dates fixes 2024
+         datetime(2024, 1, 1),    # Nouvel An
+         datetime(2024, 1, 11),   # Manifeste de l'Indépendance
+         datetime(2024, 5, 1),    # Fête du Travail
+         datetime(2024, 7, 30),   # Fête du Trône
+         datetime(2024, 8, 14),   # Oued Ed-Dahab
+         datetime(2024, 8, 20),   # Révolution du Roi et du Peuple
+         datetime(2024, 8, 21),   # Fête de la Jeunesse
+         datetime(2024, 11, 6),   # Marche Verte
+         datetime(2024, 11, 18),  # Fête de l'Indépendance
     ]
     
     current = start
@@ -137,6 +137,7 @@ def is_working_day(date):
     
     # Jours fériés Maroc (à compléter)
     morocco_holidays = [
+        
         # À compléter avec les dates
     ]
     
