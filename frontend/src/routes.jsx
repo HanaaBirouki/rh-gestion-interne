@@ -1,4 +1,5 @@
 // frontend/src/routes.jsx
+
 import React from "react"
 import { Routes, Route, Navigate } from "react-router-dom"
 
@@ -24,6 +25,7 @@ import RequestsPage from "./pages/RequestsPage"
 import AdminDashboard from "./pages/AdminDashboard"
 import Collaborators from "./pages/admin/Collaborators"
 import CreateCollaborator from "./pages/admin/CreateCollaborator"
+import EditCollaborator from "./pages/admin/EditCollaborator"
 import LeaveRequests from "./pages/admin/LeaveRequests"
 import DocumentRequests from "./pages/admin/DocumentRequests"
 import UploadDocument from "./pages/admin/UploadDocument"
@@ -33,23 +35,37 @@ import { useAuth } from "./hooks/useAuth"
 
 const ProfileLayout = () => {
   const { user } = useAuth()
-  return user?.role === "ADMIN" ? <AdminLayout /> : <EmployeeLayout />
+
+  return user?.role === "ADMIN"
+    ? <AdminLayout />
+    : <EmployeeLayout />
 }
 
 const AppRoutes = () => {
   return (
     <Routes>
+
       {/* ==========================================
           ROUTES PUBLIQUES
           ========================================== */}
+
       <Route path="/login" element={<Login />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password/:uidb64/:token/" element={<ResetPassword />} />
-      
+
+      <Route
+        path="/forgot-password"
+        element={<ForgotPassword />}
+      />
+
+      <Route
+        path="/reset-password/:uidb64/:token/"
+        element={<ResetPassword />}
+      />
+
 
       {/* ==========================================
           ROUTES EMPLOYÉ
           ========================================== */}
+
       <Route
         path="/employee"
         element={
@@ -58,13 +74,43 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route index element={<Navigate to="/employee/dashboard" replace />} />
-        <Route path="dashboard" element={<EmployeeDashboard />} />
-        <Route path="leaves" element={<LeavesPage />} />
-        <Route path="documents" element={<DocumentsPage />} />
-        <Route path="payslips" element={<PayslipsPage />} />
-        <Route path="requests" element={<RequestsPage />} />
+
+        <Route
+          index
+          element={<Navigate to="/employee/dashboard" replace />}
+        />
+
+        <Route
+          path="dashboard"
+          element={<EmployeeDashboard />}
+        />
+
+        <Route
+          path="leaves"
+          element={<LeavesPage />}
+        />
+
+        <Route
+          path="documents"
+          element={<DocumentsPage />}
+        />
+
+        <Route
+          path="payslips"
+          element={<PayslipsPage />}
+        />
+
+        <Route
+          path="requests"
+          element={<RequestsPage />}
+        />
+
       </Route>
+
+
+      {/* ==========================================
+          PROFIL
+          ========================================== */}
 
       <Route
         path="/profile"
@@ -74,12 +120,17 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route index element={<ProfilePage />} />
+        <Route
+          index
+          element={<ProfilePage />}
+        />
       </Route>
+
 
       {/* ==========================================
           ROUTES ADMIN
           ========================================== */}
+
       <Route
         path="/admin"
         element={
@@ -88,21 +139,69 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route index element={<AdminDashboard />} />
-        <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="collaborators" element={<Collaborators />} />
-        <Route path="collaborators/create" element={<CreateCollaborator />} />
-        <Route path="documents" element={<UploadDocument />} />
-        <Route path="payslips" element={<UploadPayslip />} />
-        <Route path="leave-requests" element={<LeaveRequests />} />
-        <Route path="document-requests" element={<DocumentRequests />} />
+
+        <Route
+          index
+          element={<AdminDashboard />}
+        />
+
+        <Route
+          path="dashboard"
+          element={<AdminDashboard />}
+        />
+
+        <Route
+          path="collaborators"
+          element={<Collaborators />}
+        />
+
+        <Route
+          path="collaborators/create"
+          element={<CreateCollaborator />}
+        />
+
+        <Route
+          path="collaborators/:id/edit"
+          element={<EditCollaborator />}
+        />
+
+        <Route
+          path="documents"
+          element={<UploadDocument />}
+        />
+
+        <Route
+          path="payslips"
+          element={<UploadPayslip />}
+        />
+
+        <Route
+          path="leave-requests"
+          element={<LeaveRequests />}
+        />
+
+        <Route
+          path="document-requests"
+          element={<DocumentRequests />}
+        />
+
       </Route>
+
 
       {/* ==========================================
           REDIRECTION
           ========================================== */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+
+      <Route
+        path="/"
+        element={<Navigate to="/login" replace />}
+      />
+
+      <Route
+        path="*"
+        element={<Navigate to="/login" replace />}
+      />
+
     </Routes>
   )
 }

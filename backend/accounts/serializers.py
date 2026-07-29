@@ -87,7 +87,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.set_unusable_password()  # Pas de mot de passe pour le moment
         user.save()
         return user
+def update(self, instance, validated_data):
 
+    for field, value in validated_data.items():
+        setattr(instance, field, value)
+
+    instance.save()
+
+    return instance
 
 # ==========================================
 # SÉRIALISEURS POUR L'AUTHENTIFICATION
