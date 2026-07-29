@@ -10,6 +10,8 @@ import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 
+import screen from "../../assets/screen.png";
+
 const resetPasswordSchema = z
   .object({
     password: z.string().min(8, "Mot de passe doit contenir au moins 8 caractères"),
@@ -73,10 +75,13 @@ const ResetPassword = () => {
       <div className="relative z-10 w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
           <Link to="/login" className="flex flex-col items-center">
-            <img src="screen.png" alt="Logo" className="w-20 h-20 mb-4" />
-            <h1 className="text-3xl font-bold text-primary tracking-tight">
-              WAMA RH
-            </h1>
+            <div className="w-24 h-24 mb-4">
+               <img
+                  src={screen}
+                 alt="WAMA RH Logo"
+                 className="w-full h-full rounded-xl shadow-lg object-cover"
+               />
+             </div>
           </Link>
         </div>
 

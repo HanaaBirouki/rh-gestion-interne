@@ -92,7 +92,7 @@ const Login = () => {
             WAMA RH
           </h1>
           <p className="text-sm text-[#444651] mt-1">
-            Employee Portal
+            Portail employé
           </p>
         </div>
 

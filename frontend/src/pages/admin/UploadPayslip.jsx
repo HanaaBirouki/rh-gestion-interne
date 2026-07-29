@@ -1,35 +1,56 @@
 // frontend/src/pages/admin/UploadPayslip.jsx
+
 import React, { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useNavigate } from "react-router-dom"
-import { Upload, FileText, Loader2 } from "lucide-react"
+
+import {
+  FileText,
+  FileUp,
+  Loader2,
+} from "lucide-react"
+
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select"
+
 import PageHeader from "../../components/layout/PageHeader"
 import api from "../../services/api"
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 Mo
+const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 const payslipSchema = z.object({
   user: z.string().min(1, "Le collaborateur est obligatoire"),
-  month: z
-    .string()
-    .min(1, "Le mois est obligatoire")
-    .refine((val) => Number(val) >= 1 && Number(val) <= 12, "Le mois doit être entre 1 et 12"),
+
+  month: z.string().min(1, "Le mois est obligatoire"),
+
   year: z
     .string()
     .min(1, "L'année est obligatoire")
-    .refine((val) => Number(val) >= 2000 && Number(val) <= 2100, "Année invalide"),
+    .refine(
+      (val) => Number(val) >= 2000 && Number(val) <= 2100,
+      "Année invalide"
+    ),
+
   file: z
     .instanceof(FileList)
-    .refine((files) => files.length === 1, "Un fichier est obligatoire")
+    .refine(
+      (files) => files.length === 1,
+      "Le fichier est obligatoire"
+    )
     .refine(
       (files) => files[0]?.type === "application/pdf",
-      "Seuls les fichiers PDF sont autorisés"
+      "Seuls les PDF sont autorisés"
     )
     .refine(
       (files) => files[0]?.size <= MAX_FILE_SIZE,
@@ -39,6 +60,7 @@ const payslipSchema = z.object({
 
 const UploadPayslip = () => {
   const navigate = useNavigate()
+
   const [collaborators, setCollaborators] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -59,45 +81,70 @@ const UploadPayslip = () => {
     const fetchCollaborators = async () => {
       try {
         const response = await api.get("/auth/users/")
-        const employees = response.data.filter(user => user.role !== "ADMIN")
+
+        const employees = response.data.filter(
+          (user) => user.role !== "ADMIN"
+        )
+
         setCollaborators(employees)
       } catch (error) {
-        console.error("Erreur chargement collaborateurs:", error)
+        console.error(error)
+
         setCollaborators([
-          { id: "1", first_name: "Hanae", last_name: "Birouki", email: "hanae@test.com" },
-          { id: "2", first_name: "Marwa", last_name: "Boubekri", email: "marwa@test.com" },
+          {
+            id: "1",
+            first_name: "Hanaa",
+            last_name: "Birouki",
+            email: "hanaa@test.com",
+          },
+          {
+            id: "2",
+            first_name: "Marwa",
+            last_name: "Boubekri",
+            email: "marwa@test.com",
+          },
         ])
       }
     }
+
     fetchCollaborators()
   }, [])
 
   const onSubmit = async (data) => {
     setLoading(true)
     setError("")
-    
+
     try {
       const formData = new FormData()
+
       formData.append("user", data.user)
       formData.append("month", data.month)
       formData.append("year", data.year)
       formData.append("file_url", data.file[0])
 
-      // ✅ APPEL API RÉEL
-      const response = await api.post("/admin/payslips/upload/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
+      await api.post(
+        "/admin/payslips/upload/",
+        formData,
+        {
+          headers: {
+            "Content-Type":
+              "multipart/form-data",
+          },
+        }
+      )
 
-      console.log("✅ Bulletin uploadé avec succès:", response.data)
-      alert("✅ Bulletin de paie uploadé avec succès !")
+      alert(
+        "Le bulletin de paie a été uploadé avec succès."
+      )
+
       navigate("/admin/payslips")
-      
     } catch (error) {
-      console.error("❌ Erreur upload:", error)
-      setError(error.response?.data?.message || "Erreur lors de l'upload du bulletin de paie.")
-      alert("❌ Erreur: " + (error.response?.data?.message || "Veuillez réessayer."))
+      console.error(error)
+
+      setError(
+        error.response?.data?.message ||
+          "Erreur lors de l'upload."
+      )
     } finally {
       setLoading(false)
     }
@@ -108,131 +155,287 @@ const UploadPayslip = () => {
       <PageHeader
         icon={FileText}
         title="Uploader un bulletin de paie"
-        subtitle="Importez les bulletins de paie des employés au format PDF"
+        subtitle="Importez les bulletins de paie des employés au format PDF."
       />
 
-      <div className="p-6">
-        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant max-w-2xl overflow-hidden">
-          <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-            <div>
-              <Label>Collaborateur *</Label>
-              <Select onValueChange={(val) => setValue("user", val)}>
-                <SelectTrigger className="mt-1.5">
-                  <SelectValue placeholder="Sélectionner un collaborateur" />
-                </SelectTrigger>
-                <SelectContent>
-                  {collaborators.map((c) => (
-                    <SelectItem key={c.id} value={String(c.id)}>
-                      {c.first_name} {c.last_name} ({c.email})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.user && (
-                <p className="text-sm text-error mt-1">{errors.user.message}</p>
-              )}
-            </div>
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto rounded-3xl bg-white shadow-md overflow-hidden border border-slate-200">
 
-            {/* Mois et Année */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="month">Mois *</Label>
-                <Input
-                  id="month"
-                  type="number"
-                  min="1"
-                  max="12"
-                  placeholder="1-12"
-                  {...register("month")}
-                  className="mt-1.5"
-                />
-                {errors.month && (
-                  <p className="text-sm text-error mt-1">{errors.month.message}</p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="year">Année *</Label>
-                <Input
-                  id="year"
-                  type="number"
-                  min="2000"
-                  max="2100"
-                  placeholder="2024"
-                  {...register("year")}
-                  className="mt-1.5"
-                />
-                {errors.year && (
-                  <p className="text-sm text-error mt-1">{errors.year.message}</p>
-                )}
-              </div>
-            </div>
+          <form onSubmit={handleSubmit(onSubmit)}>
 
-            {/* Fichier PDF */}
-            <div>
-              <Label htmlFor="file">Fichier PDF *</Label>
-              <div className="mt-1.5">
-                <label
-                  htmlFor="file"
-                  className="flex flex-col items-center justify-center w-full border-2 border-dashed border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors p-6"
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <Upload className="w-8 h-8 text-on-surface-variant/50" />
-                    <span className="text-sm text-on-surface-variant">
-                      {selectedFile && selectedFile[0] ? (
-                        <>📄 {selectedFile[0].name}</>
-                      ) : (
-                        "Cliquez pour sélectionner un fichier PDF"
-                      )}
-                    </span>
-                    <span className="text-xs text-on-surface-variant/50">
-                      PDF uniquement • Max 5 Mo
-                    </span>
-                  </div>
+            {/* INFORMATIONS */}
+
+            <div className="p-8 border-b border-slate-200">
+
+              <h2 className="text-xl font-bold text-[#0F2557] mb-6">
+                Informations du bulletin
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                {/* Collaborateur */}
+
+                <div>
+                  <Label>Collaborateur</Label>
+
+                  <Select
+                    onValueChange={(value) =>
+                      setValue("user", value)
+                    }
+                  >
+                    <SelectTrigger className="mt-2 h-12 rounded-xl">
+                      <SelectValue placeholder="Sélectionner un collaborateur" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      {collaborators.map((c) => (
+                        <SelectItem
+                          key={c.id}
+                          value={String(c.id)}
+                        >
+                          {c.first_name}{" "}
+                          {c.last_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {errors.user && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.user.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* MOIS */}
+
+                <div>
+                  <Label>Mois</Label>
+
+                  <Select
+                    onValueChange={(value) =>
+                      setValue("month", value)
+                    }
+                  >
+                    <SelectTrigger className="mt-2 h-12 rounded-xl">
+                      <SelectValue placeholder="Sélectionner un mois" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+
+                      <SelectItem value="1">
+                        Janvier
+                      </SelectItem>
+
+                      <SelectItem value="2">
+                        Février
+                      </SelectItem>
+
+                      <SelectItem value="3">
+                        Mars
+                      </SelectItem>
+
+                      <SelectItem value="4">
+                        Avril
+                      </SelectItem>
+
+                      <SelectItem value="5">
+                        Mai
+                      </SelectItem>
+
+                      <SelectItem value="6">
+                        Juin
+                      </SelectItem>
+
+                      <SelectItem value="7">
+                        Juillet
+                      </SelectItem>
+
+                      <SelectItem value="8">
+                        Août
+                      </SelectItem>
+
+                      <SelectItem value="9">
+                        Septembre
+                      </SelectItem>
+
+                      <SelectItem value="10">
+                        Octobre
+                      </SelectItem>
+
+                      <SelectItem value="11">
+                        Novembre
+                      </SelectItem>
+
+                      <SelectItem value="12">
+                        Décembre
+                      </SelectItem>
+
+                    </SelectContent>
+                  </Select>
+
+                  {errors.month && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.month.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* ANNEE */}
+
+                <div>
+                  <Label>Année</Label>
+
                   <Input
-                    id="file"
-                    type="file"
-                    accept=".pdf"
-                    {...register("file")}
-                    className="hidden"
+                    type="number"
+                    min="2000"
+                    max="2100"
+                    placeholder="2026"
+                    {...register("year")}
+                    className="mt-2 h-12 rounded-xl"
                   />
-                </label>
+
+                  {errors.year && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.year.message}
+                    </p>
+                  )}
+                </div>
+
               </div>
-              {errors.file && (
-                <p className="text-sm text-error mt-1">{errors.file.message}</p>
-              )}
+
             </div>
 
-            {/* Message d'erreur */}
+            {/* PDF */}
+
+            <div className="p-8 border-b border-slate-200">
+
+              <h2 className="text-xl font-bold text-[#0F2557] mb-6">
+                Fichier PDF
+              </h2>
+
+              <label
+                htmlFor="file"
+                className="
+                block
+                border-2
+                border-dashed
+                border-slate-300
+                rounded-2xl
+                p-10
+                text-center
+                cursor-pointer
+                hover:bg-slate-50
+                transition
+                "
+              >
+
+                <FileUp
+                  className="
+                  w-12
+                  h-12
+                  mx-auto
+                  text-[#2F67F6]
+                  mb-4
+                  "
+                />
+
+                <p className="font-medium text-lg">
+
+                  {selectedFile?.[0]
+                    ? selectedFile[0].name
+                    : "Cliquez pour sélectionner votre fichier PDF"}
+
+                </p>
+
+                <p className="text-slate-500 mt-2">
+                  PDF uniquement • Taille maximale 5 Mo
+                </p>
+
+                <Input
+                  id="file"
+                  type="file"
+                  accept=".pdf"
+                  {...register("file")}
+                  className="hidden"
+                />
+
+              </label>
+
+              {errors.file && (
+                <p className="text-red-500 text-sm mt-3">
+                  {errors.file.message}
+                </p>
+              )}
+
+            </div>
+
+            {/* MESSAGE D'ERREUR */}
+
             {error && (
-              <div className="p-3 bg-error-container/20 border border-error rounded-lg">
-                <p className="text-sm text-error">{error}</p>
+              <div className="p-6">
+                <p className="text-red-500">
+                  {error}
+                </p>
               </div>
             )}
 
-            {/* Actions */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+            {/* BOUTONS */}
+
+            <div
+              className="
+              p-8
+              bg-slate-50
+              flex
+              justify-end
+              gap-4
+              "
+            >
+
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate("/admin/payslips")}
+                className="h-12 px-8 rounded-xl"
+                onClick={() =>
+                  navigate("/admin/dashboard")
+                }
               >
                 Annuler
               </Button>
-              <Button type="submit" disabled={isSubmitting || loading} className="gap-2">
-                {isSubmitting || loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Upload...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4" />
-                    Uploader le bulletin
-                  </>
-                )}
-              </Button>
+
+              <Button
+    type="submit"
+    disabled={loading || isSubmitting}
+    className="
+        h-12
+        px-8
+        rounded-xl
+        bg-[#2F67F6]
+        hover:bg-[#1D4ED8]
+        text-white
+        shadow-lg
+        hover:shadow-xl
+        transition-all
+        duration-300
+        gap-2
+    "
+>
+    {loading || isSubmitting ? (
+        <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Upload...
+        </>
+    ) : (
+        <>
+            <FileUp className="w-4 h-4" />
+            Uploader le bulletin
+        </>
+    )}
+</Button>
             </div>
+
           </form>
+
         </div>
       </div>
     </>

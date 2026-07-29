@@ -120,7 +120,7 @@ class CollaboratorCreateView(generics.CreateAPIView):
         logger.info(f"✅ Collaborateur créé: {user.email} ({user.role})")
 
 
-class CollaboratorDetailView(generics.RetrieveUpdateAPIView):
+class CollaboratorDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserCreateSerializer
     permission_classes = [IsAdmin]
     lookup_field = 'id'
@@ -132,7 +132,7 @@ class CollaboratorDetailView(generics.RetrieveUpdateAPIView):
 class CollaboratorToggleActiveView(APIView):
     permission_classes = [IsAdmin]
     
-    def patch(self, request, id):
+    def _toggle(self, id):
         user = get_object_or_404(User.objects.exclude(role='ADMIN'), id=id)
         
         # Basculer le statut
@@ -148,6 +148,12 @@ class CollaboratorToggleActiveView(APIView):
             'is_active': user.is_active,
             'message': f"Compte {'activé' if user.is_active_employee else 'désactivé'} avec succès"
         })
+
+    def post(self, request, id):
+        return self._toggle(id)
+
+    def patch(self, request, id):
+        return self._toggle(id)
 
 
 # ==========================================

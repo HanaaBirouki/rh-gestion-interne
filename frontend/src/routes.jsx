@@ -24,6 +24,7 @@ import RequestsPage from "./pages/RequestsPage"
 import AdminDashboard from "./pages/AdminDashboard"
 import Collaborators from "./pages/admin/Collaborators"
 import CreateCollaborator from "./pages/admin/CreateCollaborator"
+import EditCollaborator from "./pages/admin/EditCollaborator"
 import LeaveRequests from "./pages/admin/LeaveRequests"
 import DocumentRequests from "./pages/admin/DocumentRequests"
 import UploadDocument from "./pages/admin/UploadDocument"
@@ -45,7 +46,6 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:uidb64/:token/" element={<ResetPassword />} />
-      
 
       {/* ==========================================
           ROUTES EMPLOYÉ
@@ -66,6 +66,9 @@ const AppRoutes = () => {
         <Route path="requests" element={<RequestsPage />} />
       </Route>
 
+      {/* ==========================================
+          PROFIL
+          ========================================== */}
       <Route
         path="/profile"
         element={
@@ -88,10 +91,11 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route index element={<AdminDashboard />} />
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="collaborators" element={<Collaborators />} />
         <Route path="collaborators/create" element={<CreateCollaborator />} />
+        <Route path="collaborators/:id/edit" element={<EditCollaborator />} />
         <Route path="documents" element={<UploadDocument />} />
         <Route path="payslips" element={<UploadPayslip />} />
         <Route path="leave-requests" element={<LeaveRequests />} />
