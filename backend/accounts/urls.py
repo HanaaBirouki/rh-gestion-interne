@@ -9,6 +9,7 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('refresh/', views.RefreshTokenView.as_view(), name='refresh'),
+    path('profile/', views.ProfileView.as_view(), name='profile'),
     path('password-reset/', views.PasswordResetRequestView.as_view(), name='password-reset'),
     path('password-reset/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     
@@ -16,5 +17,5 @@ urlpatterns = [
     # GESTION DES UTILISATEURS (Admin seulement)
     # ==========================================
     path('users/', views.UserListView.as_view(), name='user-list'),
-    
-]       
+
+]

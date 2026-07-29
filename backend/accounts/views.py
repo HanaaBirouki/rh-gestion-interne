@@ -203,7 +203,7 @@ class UserListView(generics.ListCreateAPIView):
         try:
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
-            reset_link = f"http://localhost:3000/reset-password/{uid}/{token}/"
+            reset_link = f"http://localhost:5173/reset-password/{uid}/{token}/"
             
             subject = '📧 Création de votre compte employé - WAMA INVEST'
             
